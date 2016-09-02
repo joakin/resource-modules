@@ -69,15 +69,14 @@ Promise.all([
 
         // Templates
         if (a.templates && a.templates.length > 0) {
-          // templates: [ { module: RLmodule, fileName: 'Drawer.hogan' } ],
+          // templates: [ { module: template file, fileName: 'Drawer.hogan' } ],
           errors.files[file].missingTemplates = a.templates.reduce((errs, template) => {
             // Modules with missing templates
             const missing = inModules.filter(([name, module]) => {
               if (!module.templates) return true
               if (module.templates.constructor === Object)
                 return !Object.keys(module.templates)
-                  .some((tplName) => tplName === template.fileName &&
-                        template.module === module.templates[tplName])
+                  .some((tplName) => tplName === template.fileName)
               throw new Error (`In module ${name}, templates is not an object`)
             })
             if (missing.length > 0) errs.push([template, missing])
