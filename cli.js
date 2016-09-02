@@ -20,10 +20,11 @@ const testFiles = [
   'resources/mobile.abusefilter/AbuseFilterPanel.js'
 ]
 
+
 Promise.all([
   getFiles(path.join(folder, '/resources'))
     .then((files) =>
-      files.map((f) => f.replace(folder, '')).filter(isJSFile))
+      files.map((f) => f.replace(folder + path.sep, '')).filter(isJSFile))
     .then(getAnalysisFromJSFiles),
   getResourceModulesInfo(folder)
 ])
@@ -46,7 +47,7 @@ Promise.all([
           missingMessages: [],
           missingTemplates: [],
           unusedDefines: [],
-          missingDependencies: []
+          dependencies: []
         }
 
         // Messages
@@ -89,16 +90,69 @@ Promise.all([
           errors.files[file].unusedDefines = a.defines.filter((mfId) =>
             // If mfId is not required somewhere with with M.require
             !Object.keys(ana.files).map((f) => [f, ana.files[f]])
-              .some(([f, fa]) => {
-                if (
-                  (fa.requires && Array.isArray(fa.requires) && fa.requires.indexOf(mfId) > -1) ||
-                  (fa.async_requires && Array.isArray(fa.async_requires) && fa.async_requires.indexOf(mfId) > -1)
-                )
-                  return true
-                else
-                  return false
-              }))
+              .some(([f, fa]) =>
+                (fa.requires && Array.isArray(fa.requires) && fa.requires.indexOf(mfId) > -1) ||
+                (fa.async_requires && Array.isArray(fa.async_requires) && fa.async_requires.indexOf(mfId) > -1)
+              ))
         }
+
+
+        // Required dependencies in source that are missing in ResourceModules
+        // or not defined in the source (M.define)
+        // (Using M.require)
+        if (a.requires && a.requires.length) {
+          errors.files[file].dependencies = a.requires.reduce((errs, mfId) => {
+            // Find out which file defines mfId (if any)
+            const whoDefines = Object.keys(ana.files).map((f) => [f, ana.files[f]])
+              .filter(([f, fa]) =>
+                fa.defines && Array.isArray(fa.defines) &&
+                fa.defines.indexOf(mfId) > -1)
+
+            if (whoDefines.length > 1) {
+              errs.push({kind: 'multiple_defines', id: mfId, where: whoDefines})
+            } else if (whoDefines.length === 0) {
+              errs.push({kind: 'not_defined', id: mfId, where: whoDefines})
+            } else {
+              const [definer] = whoDefines[0]
+
+              const getDependenciesWithFile = (scriptToFind, moduleName, module, source) => {
+                if (!module) return []
+
+                let found = []
+                if (module.scripts && module.scripts.indexOf(scriptToFind) > -1) {
+                  found.push(moduleName)
+                }
+
+                if (module.dependencies) {
+                  module.dependencies.forEach((dep) => {
+                    found = found.concat(getDependenciesWithFile(scriptToFind, dep, resourceModules[dep], source))
+                  })
+                }
+                return found
+              }
+
+              // Traverse dependencies of the RLModules where source file is used
+              // and check file that defines is there somewhere
+              inModules.forEach(([name, module]) => {
+                // Script defined before me, or check my dependencies for it
+                const inDependencies = getDependenciesWithFile(definer, name, module, file)
+                  .filter((v, i, arr) => arr.indexOf(v) === i)
+                if (inDependencies.length > 1) {
+                  errs.push({kind: 'file_in_multiple_dependencies', id: mfId, where: [definer, inDependencies]})
+                } else if (inDependencies.length === 0) {
+                  errs.push({kind: 'not_found', id: mfId, where: definer})
+                }
+              })
+
+            }
+
+            return errs
+          }, [])
+        }
+
+        // Check required async dependencies that the module name in
+        // mw.loader.using is correct
+
 
         // { requires: MFmoduleid
         //   defines: MFmoduleid
@@ -109,8 +163,8 @@ Promise.all([
     })
 
     if (errors.skippedBecauseNotInResourceModules.length > 0) {
-      console.log('Warning: Not in extension.json (couldn\'t verify):')
-      console.log(errors.skippedBecauseNotInResourceModules.map((f) => '  ' + f).join('\n'))
+      console.error('Warning: Not in extension.json (couldn\'t verify):')
+      console.error(errors.skippedBecauseNotInResourceModules.map((f) => '  ' + f).join('\n'))
     }
 
     const filesWithErrors = Object.keys(errors.files)
@@ -128,8 +182,8 @@ Promise.all([
           return acc
         }, {})
 
-        console.log(`\nError: Missing messages used directly in file: ${k}:`)
-        console.log(Object.keys(messagesByModule).map((name) =>
+        console.error(`\nError: Missing messages used directly in file: ${k}:`)
+        console.error(Object.keys(messagesByModule).map((name) =>
           `  In module ${name}, missing:\n` +
           messagesByModule[name].map((msg) => '    ' + msg).join('\n')
         ).join('\n'))
@@ -144,34 +198,64 @@ Promise.all([
           return acc
         }, {})
 
-        console.log(`\nError: Missing templates used directly in file: ${k}:`)
-        console.log(Object.keys(templatesByModule).map((name) =>
+        console.error(`\nError: Missing templates used directly in file: ${k}:`)
+        console.error(Object.keys(templatesByModule).map((name) =>
           `  In module ${name}, missing:\n` +
           templatesByModule[name].map((template) => '    ' + template.fileName).join('\n')
         ).join('\n'))
       }
 
       if (f.unusedDefines.length > 0) {
-        console.log(`\nError: Unused defines from file: ${k}:`)
-        console.log(f.unusedDefines.map((name) =>
+        console.error(`\nError: Unused defines from file: ${k}:`)
+        console.error(f.unusedDefines.map((name) =>
           `  ${name}`
         ).join('\n'))
+      }
+
+      if (f.dependencies.length > 0) {
+        console.error(`\nError: Dependency problems in file: ${k}:`)
+        f.dependencies.forEach(({kind, id, where}) => {
+          switch(kind) {
+            case 'multiple_defines':
+              console.error(`  Required ${id} defined in multiple files:`)
+              console.error(where.map(([f]) => `    ${f}`).join('\n'))
+              break
+            case 'not_defined':
+              console.error(`  Required ${id} not defined in any source files`)
+              break
+            case 'file_in_multiple_dependencies':
+              console.error(`  Required ${id} defined in file ${where[0]} found in multiple ResourceModules:`)
+              console.error(where[1].map((m) => `    ${m}`).join('\n'))
+              break
+            case 'not_found':
+              console.error(`  Required ${id} defined in file ${where} not found in any ResourceModules`)
+              break
+          }
+        })
       }
     })
 
     // Print all analysis
     // prn(ana, true)
 
-    // console.log(Object.keys(ana).length)
-    // console.log(Object.keys(resourceModules))
+    // console.error(Object.keys(ana.files))
+    // console.error(Object.keys(resourceModules))
     
     // Unique sorted mw dependencies
-    // console.log(
+    // console.error(
     //   Object.keys(ana.files)
     //     .reduce((a, f) => a.concat(ana.files[f].mw_requires), [])
     //     .filter((v, k, a) => a.indexOf(v) === k)
     //     .sort()
     //     .join('\n'))
+
+    // Unique sorted mw defines
+    // console.error(
+    //   Object.keys(ana.files)
+    //     .map((f) => [f, ana.files[f].mw_defines].toString())
+    //     .join('\n'))
+
+    //     return
   })
   .catch((e) => console.error(e))
 

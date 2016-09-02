@@ -21,15 +21,17 @@ From code
       }
     }
 
-## Pre
-* Detect creation of mw.blah.blah = ... and put it in mw_defines
 
 ## What
 - Dead files: Check all files are in extension.json
 - Validate templates and i18n in extension.json where the JS file appears
 - Validate order of scripts[] in modulename
 - Unused defines
-* Validate dependencies based on source dependencies
+- Validate dependencies based on source dependencies
+  * There's resource modules information in hooks files and stuff
+* Fill information about files defining mw.<name>
+  - Detect creation of mw.blah.blah = ... and put it in mw_defines
+  * Validate mw_requires with mw_defines as we did above
 * Do duplicate entries in extension.json result in duplicate sources in the
   bundles?
 * Collapsing RL modules into bigger modules
