@@ -29,6 +29,7 @@ From code
 - Unused defines
 - Validate dependencies based on source dependencies
   * There's resource modules information in hooks files and stuff
+* Validate template files exist
 * Fill information about files defining mw.<name>
   - Detect creation of mw.blah.blah = ... and put it in mw_defines
   * Validate mw_requires with mw_defines as we did above
