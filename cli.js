@@ -5,7 +5,7 @@ const walk = require('acorn/dist/walk')
 
 const matchers = require('./lib/matchers')
 const prn = require('./lib/prn')
-const {getFiles, getSource, getJSON} = require('./lib/fs')
+const {getFiles, getSources, getJSON} = require('./lib/fs')
 
 const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
 
@@ -18,7 +18,7 @@ function main () {
     getFiles(path.join(folder, '/resources'))
       .then((files) =>
         files.map(replace(folder + path.sep, '')).filter(isJSFile))
-      .then(getAnalysisFromJSFiles),
+      .then((jsFiles) => getAnalysisFromJSFiles(folder, jsFiles)),
 
     // Get ResourceModules definitions
     getJSON(folder, 'extension.json')
@@ -260,29 +260,27 @@ function getResourceModulesWithFile (file, resourceModules) {
     .map((rk) => [rk, resourceModules[rk]])
 }
 
-function getAnalysisFromJSFiles (jsFiles) {
-  let state = {
-    files: {}
-  }
-  return Promise.all(
-    jsFiles.map((f) =>
-      getSource(folder, f)
-        .then((source) => processFile(state, f, source)))
-  ).then(() => state)
+function getAnalysisFromJSFiles (dir, jsFiles) {
+  return getSources(dir, jsFiles)
+    .then((m) => {
+      Object.keys(m).forEach((k) =>
+        processFile(m, k, m[k].source))
+      return { files: m }
+    })
 }
 
-function processFile (state, filePath, source) {
-  walkAst(state, filePath, parseFile(source))
+function processFile (files, filePath, source) {
+  walkAst(files, filePath, parseFile(source))
 }
 
 function parseFile (source) {
   return acorn.parse(source, {locations: true})
 }
 
-function walkAst (state, file, ast) {
-  const data = state.files[file] = {}
+function walkAst (files, file, ast) {
+  const data = files[file] = {}
   walk.ancestor(ast, matchers(data, file))
-  return state
+  return files
 }
 
 function isJSFile (name) { return name.slice(name.length - 3) === '.js' }
