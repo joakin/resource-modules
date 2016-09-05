@@ -29,6 +29,8 @@ From code
 - Unused defines
 - Validate dependencies based on source dependencies
   * There's resource modules information in hooks files and stuff
+* Unit test visitors
+* Extract and test the analisis-to-errors in cli.js
 * Validate template files exist
 * Fill information about files defining mw.<name>
   - Detect creation of mw.blah.blah = ... and put it in mw_defines
