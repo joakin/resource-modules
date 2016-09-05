@@ -1,6 +1,6 @@
 const path = require('path')
 
-const matchers = require('./lib/matchers')
+const visitors = require('./lib/visitors')
 const prn = require('./lib/prn')
 const {getFiles, getJSON} = require('./lib/fs')
 const {analyzeFiles} = require('./lib/analyze')
@@ -18,7 +18,7 @@ function main (dir) {
       .then((files) =>
         files.map(replace(dir + path.sep, '')).filter(isJSFile))
       // Analyze the JS files
-      .then((jsFiles) => analyzeFiles(dir, jsFiles, matchers)),
+      .then((jsFiles) => analyzeFiles(dir, jsFiles, visitors)),
 
     // Get ResourceModules definitions
     getJSON(dir, 'extension.json')
