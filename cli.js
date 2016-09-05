@@ -1,27 +1,27 @@
 const path = require('path')
 
-const acorn = require('acorn')
-const walk = require('acorn/dist/walk')
-
 const matchers = require('./lib/matchers')
 const prn = require('./lib/prn')
-const {getFiles, getSources, getJSON} = require('./lib/fs')
+const {getFiles, getJSON} = require('./lib/fs')
+const {analyzeFiles} = require('./lib/analyze')
 
 const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
 
-main()
+main(folder)
 
-function main () {
+function main (dir) {
   Promise.all([
 
     // Get frontend assets
-    getFiles(path.join(folder, '/resources'))
+    getFiles(path.join(dir, '/resources'))
+      // Remove folder prefix and filter only JS files
       .then((files) =>
-        files.map(replace(folder + path.sep, '')).filter(isJSFile))
-      .then((jsFiles) => getAnalysisFromJSFiles(folder, jsFiles)),
+        files.map(replace(dir + path.sep, '')).filter(isJSFile))
+      // Analyze the JS files
+      .then((jsFiles) => analyzeFiles(dir, jsFiles, matchers)),
 
     // Get ResourceModules definitions
-    getJSON(folder, 'extension.json')
+    getJSON(dir, 'extension.json')
       .then((json) => json.ResourceModules)
 
   ])
@@ -258,29 +258,6 @@ function getResourceModulesWithFile (file, resourceModules) {
   return Object.keys(resourceModules)
     .filter((rk) => (resourceModules[rk].scripts || []).indexOf(file.replace(/^\//, '')) > -1)
     .map((rk) => [rk, resourceModules[rk]])
-}
-
-function getAnalysisFromJSFiles (dir, jsFiles) {
-  return getSources(dir, jsFiles)
-    .then((m) => {
-      Object.keys(m).forEach((k) =>
-        processFile(m, k, m[k].source))
-      return { files: m }
-    })
-}
-
-function processFile (files, filePath, source) {
-  walkAst(files, filePath, parseFile(source))
-}
-
-function parseFile (source) {
-  return acorn.parse(source, {locations: true})
-}
-
-function walkAst (files, file, ast) {
-  const data = files[file] = {}
-  walk.ancestor(ast, matchers(data, file))
-  return files
 }
 
 function isJSFile (name) { return name.slice(name.length - 3) === '.js' }
