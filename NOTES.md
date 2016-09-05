@@ -38,6 +38,8 @@ From code
 * Do duplicate entries in extension.json result in duplicate sources in the
   bundles?
 * Collapsing RL modules into bigger modules
+* Track async RLmodules too to theck if async requires are in async loaded
+  RLmodules
 
 ## How
 
