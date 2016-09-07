@@ -156,3 +156,81 @@ test('it should complain if required dep in source is not defined in a nested de
 
   t.end()
 })
+
+test('it should complain if file that defines required dep in source is multiple times in the dependency tree', (t) => {
+  const m1 = {
+    dependencies: ['m2', 'm3'],
+    scripts: ['f1']
+  }
+  const m2 = {
+    scripts: ['f2']
+  }
+  const m3 = {
+    scripts: ['f2']
+  }
+  const f1 = { requires: ['mobile.browser/Browser'] }
+  const f2 = { defines: ['mobile.browser/Browser'] }
+
+  t.deepEqual(getDependenciesErrors(
+    f1,
+    [ // In modules
+      ['m1', m1]
+    ],
+    { // Analysis from source
+      files: { f1, f2 }
+    },
+    'f1',
+    { // resource modules
+      m1, m2, m3
+    }
+  ), [ // Required file found in multiple modules in the dependency tree (m2, m3)
+    {
+      id: 'mobile.browser/Browser',
+      kind: 'file_in_multiple_dependencies',
+      where: ['f2', ['m2', 'm3']]
+    }
+  ])
+
+  t.end()
+})
+
+test('it should complain if a required dep in source is defined multiple times in one or more files', (t) => {
+  const m1 = {
+    dependencies: ['m2', 'm3'],
+    scripts: ['f1']
+  }
+  const m2 = {
+    scripts: ['f2']
+  }
+  const m3 = {
+    scripts: ['f3']
+  }
+  const f1 = { requires: ['mobile.browser/Browser'] }
+  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f3 = { defines: ['mobile.browser/Browser'] }
+
+  t.deepEqual(getDependenciesErrors(
+    f1,
+    [ // In modules
+      ['m1', m1]
+    ],
+    { // Analysis from source
+      files: { f1, f2, f3 }
+    },
+    'f1',
+    { // resource modules
+      m1, m2, m3
+    }
+  ), [ // Required module, defined in files f2 and f3
+    {
+      id: 'mobile.browser/Browser',
+      kind: 'multiple_defines',
+      where: [
+        [ 'f2', f2 ],
+        [ 'f3', f3 ]
+      ]
+    }
+  ])
+
+  t.end()
+})
