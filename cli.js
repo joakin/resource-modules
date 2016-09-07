@@ -37,10 +37,10 @@ function main (dir) {
       const filesWithErrors = Object.keys(errors.files)
         .map((fk) => [fk, errors.files[fk]])
         .filter(([file, fileErrors]) => {
-          return Object.keys(fileErrors).some((k) => fileErrors[k].length > 0)
+          return Object.keys(fileErrors).some((k) => Array.isArray(fileErrors[k]) && (fileErrors[k].length > 0))
         })
       filesWithErrors.forEach(([k, f]) => {
-        if (f.missingMessages.length > 0) {
+        if (f.missingMessages && f.missingMessages.length > 0) {
           const messagesByModule = f.missingMessages.reduce((acc, [msg, modules]) => {
             modules.forEach(([name]) => {
               acc[name] = (acc[name] || [])
@@ -56,7 +56,7 @@ function main (dir) {
           ).join('\n'))
         }
 
-        if (f.missingTemplates.length > 0) {
+        if (f.missingTemplates && f.missingTemplates.length > 0) {
           const templatesByModule = f.missingTemplates.reduce((acc, [template, modules]) => {
             modules.forEach(([name]) => {
               acc[name] = (acc[name] || [])
@@ -72,14 +72,14 @@ function main (dir) {
           ).join('\n'))
         }
 
-        if (f.unusedDefines.length > 0) {
+        if (f.unusedDefines && f.unusedDefines.length > 0) {
           console.error(`\nError: Unused defines from file: ${k}:`)
           console.error(f.unusedDefines.map((name) =>
             `  ${name}`
           ).join('\n'))
         }
 
-        if (f.dependencies.length > 0) {
+        if (f.dependencies && f.dependencies.length > 0) {
           console.error(`\nError: Dependency problems in file: ${k}:`)
           f.dependencies.forEach(({kind, id, where}) => {
             switch (kind) {
