@@ -1,7 +1,6 @@
 const path = require('path')
 
 const visitors = require('./lib/visitors')
-const prn = require('./lib/prn')
 const {getFiles, getJSON} = require('./lib/fs')
 const {analyzeFiles} = require('./lib/analyze')
 const lint = require('./lib/lint')
@@ -39,6 +38,7 @@ function main (dir) {
         .filter(([file, fileErrors]) => {
           return Object.keys(fileErrors).some((k) => Array.isArray(fileErrors[k]) && (fileErrors[k].length > 0))
         })
+
       filesWithErrors.forEach(([k, f]) => {
         if (f.missingMessages && f.missingMessages.length > 0) {
           const messagesByModule = f.missingMessages.reduce((acc, [msg, modules]) => {
@@ -103,7 +103,8 @@ function main (dir) {
       })
 
       // Print all analysis
-      false && prn(ana, true)
+      // const prn = require('./lib/prn')
+      // prn(ana, true)
 
       // console.error(Object.keys(ana.files))
       // console.error(Object.keys(resourceModules))
