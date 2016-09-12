@@ -1,3 +1,5 @@
+// @flow
+
 const test = require('tape')
 
 const {analyzeFiles, parse} = require('../lib/analyze')
