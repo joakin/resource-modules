@@ -1,3 +1,5 @@
+// @flow
+
 const test = require('tape')
 
 const prn = require('../lib/prn-ast')
