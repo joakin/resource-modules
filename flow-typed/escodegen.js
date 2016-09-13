@@ -1,3 +1,3 @@
 declare module "escodegen" {
-  declare export function generate (ast: Object): string
+  declare export function generate (ast: acorn$Node): string
 }
