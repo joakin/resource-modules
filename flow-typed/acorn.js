@@ -13,5 +13,6 @@ declare module "acorn" {
 
 declare module "acorn/dist/walk" {
   declare export type Visitor = (node: acorn$Node, state: Object, ancestors: acorn$Node[]) => void
-  declare export function ancestor<T>(ast: acorn$Node, visitors: {[key: string]: Visitor}, base: null, initialState: T): void
+  declare export type VisitorMap = {[key: string]: Visitor}
+  declare export function ancestor<T>(ast: acorn$Node, visitors: VisitorMap, base: null, initialState: T): void
 }
