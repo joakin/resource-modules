@@ -1,3 +1,5 @@
+// @flow
+
 const test = require('tape')
 
 const {walk} = require('../../lib/analyze')
