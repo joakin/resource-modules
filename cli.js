@@ -1,9 +1,12 @@
+// @flow
 const path = require('path')
 
 const visitors = require('./lib/visitors')
 const {getFiles, getJSON} = require('./lib/fs')
 const {analyzeFiles} = require('./lib/analyze')
 const lint = require('./lib/lint')
+
+import type {Analysis} from './lib/analyze'
 
 const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
 
@@ -15,17 +18,17 @@ function main (dir) {
     // Get frontend assets
     getFiles(path.join(dir, '/resources'))
       // Remove folder prefix and filter only JS files
-      .then((files) =>
+      .then((files: string[]) =>
         files.map(replace(dir + path.sep, '')).filter(isJSFile))
       // Analyze the JS files
-      .then((jsFiles) => analyzeFiles(dir, jsFiles, visitors)),
+      .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors)),
 
     // Get ResourceModules definitions
     getJSON(dir, 'extension.json')
       .then((json) => json.ResourceModules)
 
   ])
-    .then(([ana, resourceModules]) => {
+    .then(([ana, resourceModules]: [{ files: Analysis }, Object]) => {
       const errors = lint(ana, resourceModules)
 
       if (errors.skippedBecauseNotInResourceModules.length > 0) {
