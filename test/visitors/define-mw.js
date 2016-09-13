@@ -4,6 +4,7 @@ const test = require('tape')
 
 const {walk} = require('../../lib/analyze')
 const defineMw = require('../../lib/visitors/define-mw')
+const {fileAnalysis} = require('../../lib/visitors/types')
 
 const files = {
   'a': {
@@ -17,11 +18,11 @@ const files = {
 
 test('tracks definition of mw.<...> variables', (t) => {
   t.deepEqual(
-    walk(defineMw, files, 'a').a,
-    {
+    walk(defineMw, files.a.source, 'a'),
+    fileAnalysis({
       mw_defines: ['mw.banana', 'mw.phone.ring', 'mw.yes.no'],
       source: files.a.source
-    }
+    })
   )
   t.end()
 })

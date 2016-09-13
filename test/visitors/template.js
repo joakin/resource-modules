@@ -2,6 +2,7 @@ const test = require('tape')
 
 const {walk} = require('../../lib/analyze')
 const template = require('../../lib/visitors/template')
+const {fileAnalysis} = require('../../lib/visitors/types')
 
 const files = {
   'a': {
@@ -27,35 +28,35 @@ const files = {
 
 test('tracks mw.template.get\'s RLmodule and template name in .templates', (t) => {
   t.deepEqual(
-    walk(template, files, 'a').a,
-    {
+    walk(template, files.a.source, 'a'),
+    fileAnalysis({
       templates: [{module: 'mobile.overlays', fileName: 'header.hogan'}],
       source: files.a.source
-    }
+    })
   )
   t.end()
 })
 
 test('tracks multiple mw.template.get\'s', (t) => {
   t.deepEqual(
-    walk(template, files, 'b').b,
-    {
+    walk(template, files.b.source, 'b'),
+    fileAnalysis({
       templates: [
         {module: 'mobile.overlays', fileName: 'header.hogan'},
         {module: 'mobile.whatever', fileName: 'banana.hogan'}
       ],
       source: files.b.source
-    }
+    })
   )
   t.end()
 })
 
 test('Warns against using mw.template.get with non string literals', (t) => {
   t.throws(() => {
-    walk(template, files, 'c')
+    walk(template, files.c.source, 'c')
   }, /mw.template.get must be used with string literals/)
   t.throws(() => {
-    walk(template, files, 'd')
+    walk(template, files.d.source, 'd')
   }, /mw.template.get must be used with string literals/)
   t.end()
 })
