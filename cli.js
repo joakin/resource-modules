@@ -1,7 +1,7 @@
 // @flow
 
 const path = require('path')
-const exec = require('child_process').exec;
+const exec = require('child_process').exec
 
 const visitors = require('./lib/visitors')
 const {getFiles, getJSON} = require('./lib/fs')
@@ -21,21 +21,20 @@ function main (coreDir, dir) {
   Promise.all([
 
     // Get frontend assets
-    Promise.all([coreDir, dir].map((d) => analyzeJSFiles(d, '/resources')))
-      .then((anas: Analysis[]) =>
-        anas.reduce((all, ana) => ({
-          files: Object.assign(all.files, ana.files)
-        }), {files: {}})),
+    analyzeJSFiles(dir, '/resources'),
 
-    // Get ResourceModules definitions
+    // Get core's frontend assets
+    analyzeJSFiles(coreDir, '/resources'),
+
+    // Get all ResourceModules definitions
     Promise.all([
       getJSON(dir, 'extension.json').then((json) => json.ResourceModules),
       getPhpConfig(core, coreResources)
     ]).then(([ext, core]) => Object.assign({}, core, ext))
 
   ])
-    .then(([ana, resourceModules]: [Analysis, Object]) => {
-      const errors = lint(ana, resourceModules)
+    .then(([ana, coreAna, resourceModules]: [Analysis, Analysis, Object]) => {
+      const errors = lint(ana, coreAna, resourceModules)
 
       if (errors.skippedBecauseNotInResourceModules.length > 0) {
         console.error('Warning: Not in extension.json (couldn\'t verify):')
@@ -162,5 +161,5 @@ function getPhpConfig (dir: string, file: string): Promise<Object> {
       console.error(stderr)
       resolve(stdout)
     })
-  }).then((t) => JSON.parse(t))
+  }).then((t) => JSON.parse(t.toString()))
 }
