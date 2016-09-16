@@ -27,6 +27,20 @@ const files = {
     this.banana = 1
     a.b = 2
     `
+  },
+  'd': {
+    source: `
+    mw = {
+      a: 1
+    }
+    `
+  },
+  'e': {
+    source: `
+    mw = {
+      a: null
+    }
+    `
   }
 }
 
@@ -58,6 +72,28 @@ test('doesn\'nt track definition of other variables ', (t) => {
     fileAnalysis({
       mw_defines: [],
       source: files.c.source
+    })
+  )
+  t.end()
+})
+
+test('tracks definition of mw namespace', (t) => {
+  t.deepEqual(
+    walk(defineMw, files.d.source, 'd'),
+    fileAnalysis({
+      mw_defines: [ 'mw.a' ],
+      source: files.d.source
+    })
+  )
+  t.end()
+})
+
+test('doesnt track definition of null properties', (t) => {
+  t.deepEqual(
+    walk(defineMw, files.e.source, 'e'),
+    fileAnalysis({
+      mw_defines: [],
+      source: files.e.source
     })
   )
   t.end()
