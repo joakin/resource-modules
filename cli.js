@@ -1,5 +1,7 @@
 // @flow
+
 const path = require('path')
+const exec = require('child_process').exec;
 
 const visitors = require('./lib/visitors')
 const {getFiles, getJSON} = require('./lib/fs')
@@ -9,6 +11,7 @@ const lint = require('./lib/lint')
 import type {Analysis} from './lib/analyze'
 
 const core = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki'
+const coreResources = '/resources/Resources.php'
 // const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
 const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/RelatedArticles'
 
@@ -25,7 +28,10 @@ function main (coreDir, dir) {
         }), {files: {}})),
 
     // Get ResourceModules definitions
-    getJSON(dir, 'extension.json').then((json) => json.ResourceModules)
+    Promise.all([
+      getJSON(dir, 'extension.json').then((json) => json.ResourceModules),
+      getPhpConfig(core, coreResources)
+    ]).then(([ext, core]) => Object.assign({}, core, ext))
 
   ])
     .then(([ana, resourceModules]: [Analysis, Object]) => {
@@ -148,3 +154,13 @@ function isValidJSFile (name) {
 }
 
 function replace (rpl, s) { return (str) => str.replace(rpl, s) }
+
+function getPhpConfig (dir: string, file: string): Promise<Object> {
+  return new Promise((resolve, reject) => {
+    exec(`php ${path.join(__dirname, 'resources.php')} ${dir} ${file}`, (error, stdout, stderr) => {
+      if (error) return reject(error)
+      console.error(stderr)
+      resolve(stdout)
+    })
+  }).then((t) => JSON.parse(t))
+}
