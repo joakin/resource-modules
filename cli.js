@@ -8,24 +8,24 @@ const lint = require('./lib/lint')
 
 import type {Analysis} from './lib/analyze'
 
-const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
+const core = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki'
+// const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
+const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/RelatedArticles'
 
-main(folder)
+main(core, folder)
 
-function main (dir) {
+function main (coreDir, dir) {
   Promise.all([
 
     // Get frontend assets
-    getFiles(path.join(dir, '/resources'))
-      // Remove folder prefix and filter only JS files
-      .then((files: string[]) =>
-        files.map(replace(dir + path.sep, '')).filter(isJSFile))
-      // Analyze the JS files
-      .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors)),
+    Promise.all([coreDir, dir].map((d) => analyzeJSFiles(d, '/resources')))
+      .then((anas: Analysis[]) =>
+        anas.reduce((all, ana) => ({
+          files: Object.assign(all.files, ana.files)
+        }), {files: {}})),
 
     // Get ResourceModules definitions
-    getJSON(dir, 'extension.json')
-      .then((json) => json.ResourceModules)
+    getJSON(dir, 'extension.json').then((json) => json.ResourceModules)
 
   ])
     .then(([ana, resourceModules]: [Analysis, Object]) => {
@@ -131,6 +131,20 @@ function main (dir) {
     .catch((e) => console.error(e))
 }
 
-function isJSFile (name) { return name.slice(name.length - 3) === '.js' }
+function analyzeJSFiles (dir: string, resources: string): Promise<Analysis> {
+  return getFiles(path.join(dir, resources))
+    // Remove folder prefix and filter only JS files
+    .then((files: string[]) =>
+      files.map(replace(dir + path.sep, '')).filter(isValidJSFile))
+    // Analyze the JS files
+    .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors))
+}
+
+function isValidJSFile (name) {
+  return (
+    name.slice(name.length - 3) === '.js' &&
+    name.indexOf('-skip.js') === -1
+  )
+}
 
 function replace (rpl, s) { return (str) => str.replace(rpl, s) }
