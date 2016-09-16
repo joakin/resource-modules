@@ -21,6 +21,12 @@ const files = {
       ring: function () {}
     }
     `
+  },
+  'c': {
+    source: `
+    this.banana = 1
+    a.b = 2
+    `
   }
 }
 
@@ -41,6 +47,17 @@ test('tracks definition of mw.<...> as objects', (t) => {
     fileAnalysis({
       mw_defines: ['mw.banana', 'mw.banana.phone', 'mw.banana.ring'],
       source: files.b.source
+    })
+  )
+  t.end()
+})
+
+test('doesn\'nt track definition of other variables ', (t) => {
+  t.deepEqual(
+    walk(defineMw, files.c.source, 'c'),
+    fileAnalysis({
+      mw_defines: [],
+      source: files.c.source
     })
   )
   t.end()
