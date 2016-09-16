@@ -1,10 +1,13 @@
+// @flow
+
 const test = require('tape')
 
+const {fileAnalysis} = require('../../lib/visitors/types')
 const getDependenciesErrors = require('../../lib/lint/dependencies')
 
 test('won\'t return errors if there are no requires', (t) => {
-  t.equal(getDependenciesErrors({}), undefined)
-  t.equal(getDependenciesErrors({requires: []}), undefined)
+  t.deepEqual(getDependenciesErrors(fileAnalysis({}), [], {files: {}}, 'test', {}), [])
+  t.deepEqual(getDependenciesErrors(fileAnalysis({requires: []}), [], {files: {}}, 'test', {}), [])
   t.end()
 })
 
@@ -15,8 +18,8 @@ test('it should not complain if required dep in source is defined in a previous 
       'f1'
     ]
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -42,8 +45,8 @@ test('it should complain if required dep in source is not defined in a previous 
       'f1'
     ]
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: [] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: [] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -59,7 +62,7 @@ test('it should complain if required dep in source is not defined in a previous 
     }
   ), [
     // Module not defined, where: any files
-    { id: 'mobile.browser/Browser', kind: 'not_defined', where: [] }
+    { id: 'mobile.browser/Browser', kind: 'not_defined' }
   ])
 
   t.end()
@@ -73,8 +76,8 @@ test('it should not complain if required dep in source is defined in a dependenc
   const m2 = {
     scripts: ['f2']
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -104,8 +107,8 @@ test('it should not complain if required dep in source is defined in a nested de
   const m3 = {
     scripts: ['f2']
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -135,8 +138,8 @@ test('it should complain if required dep in source is not defined in a nested de
   const m3 = {
     scripts: []
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -168,8 +171,8 @@ test('it should complain if file that defines required dep in source is multiple
   const m3 = {
     scripts: ['f2']
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
@@ -205,9 +208,9 @@ test('it should complain if a required dep in source is defined multiple times i
   const m3 = {
     scripts: ['f3']
   }
-  const f1 = { requires: ['mobile.browser/Browser'] }
-  const f2 = { defines: ['mobile.browser/Browser'] }
-  const f3 = { defines: ['mobile.browser/Browser'] }
+  const f1 = fileAnalysis({ requires: ['mobile.browser/Browser'] })
+  const f2 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
+  const f3 = fileAnalysis({ defines: ['mobile.browser/Browser'] })
 
   t.deepEqual(getDependenciesErrors(
     f1,
