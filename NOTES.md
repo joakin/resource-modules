@@ -40,6 +40,8 @@ From code
 * Do duplicate entries in extension.json result in duplicate sources in the
   bundles?
 * Collapsing RL modules into bigger modules
+* Check required async dependencies that the module name in mw.loader.using is
+  correct
 
 ## How
 
