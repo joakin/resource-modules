@@ -6,6 +6,8 @@ declare type acorn$MemberExpression     = {loc: acorn$Location, type: 'MemberExp
 declare type acorn$CallExpression       = {loc: acorn$Location, type: 'CallExpression', callee: acorn$Node, arguments: acorn$Node[]}
 declare type acorn$ArrayExpression      = {loc: acorn$Location, type: 'ArrayExpression', elements: acorn$Node[]}
 declare type acorn$AssignmentExpression = {loc: acorn$Location, type: 'AssignmentExpression', left: acorn$Node, right: acorn$Node}
+declare type acorn$ObjectExpression     = {loc: acorn$Location, type: 'ObjectExpression', properties: acorn$Property[]}
+declare type acorn$Property             = {loc: acorn$Location, type: 'Property', key: acorn$Node, value: acorn$Node}
 
 declare module "acorn" {
   declare export type Node = acorn$Node
