@@ -28,7 +28,7 @@ function main (dir) {
       .then((json) => json.ResourceModules)
 
   ])
-    .then(([ana, resourceModules]: [{ files: Analysis }, Object]) => {
+    .then(([ana, resourceModules]: [Analysis, Object]) => {
       const errors = lint(ana, resourceModules)
 
       if (errors.skippedBecauseNotInResourceModules.length > 0) {
