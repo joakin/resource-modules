@@ -4,11 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "standard && tape \"test/**/*.js\""
+    "start": "flow-node cli.js",
+    "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\"",
+    "type:coverage": "find . -name '*.js' -not -path \"./node_modules/*\"  -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;"
   },
   "author": "Joaquin Oltra <joaquin@chimeces.com> (http://chimeces.com)",
   "license": "ISC",
   "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "eslint-plugin-flowtype": "^2.16.1",
+    "flow-bin": "^0.32.0",
+    "flow-remove-types": "^1.0.4",
     "standard": "^8.0.0",
     "tape": "^4.6.0"
   },
@@ -17,5 +23,14 @@
     "deep-equal": "^1.0.1",
     "escodegen": "^1.8.1",
     "recursive-readdir": "^2.0.0"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "flow-typed/"
+    ],
+    "plugins": [
+      "flowtype"
+    ]
   }
 }
