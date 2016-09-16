@@ -21,10 +21,10 @@ function main (coreDir, dir) {
   Promise.all([
 
     // Get frontend assets
-    analyzeJSFiles(dir, '/resources'),
+    analyzeJSFiles(dir, '/resources', true),
 
     // Get core's frontend assets
-    analyzeJSFiles(coreDir, '/resources'),
+    analyzeJSFiles(coreDir, '/resources', false),
 
     // Get all ResourceModules definitions
     Promise.all([
@@ -136,13 +136,13 @@ function main (coreDir, dir) {
     .catch((e) => console.error(e))
 }
 
-function analyzeJSFiles (dir: string, resources: string): Promise<Analysis> {
+function analyzeJSFiles (dir: string, resources: string, printAnalysisErrors: boolean): Promise<Analysis> {
   return getFiles(path.join(dir, resources))
     // Remove folder prefix and filter only JS files
     .then((files: string[]) =>
       files.map(replace(dir + path.sep, '')).filter(isValidJSFile))
     // Analyze the JS files
-    .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors))
+    .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
 }
 
 function isValidJSFile (name) {
