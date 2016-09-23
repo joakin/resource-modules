@@ -100,11 +100,17 @@ test('tracks standalone definitions mw.<...>.<...>', (t) => {
   t.end()
 })
 
-test('doesnt track usage of mw.<...> if namespace not defined in file', (t) => {
+test('tracks usage of mw.<...> as assignments if namespace not defined in file', (t) => {
   t.deepEqual(
     walk(defineMw, files.d.source, 'd'),
     fileAnalysis({
-      mw_defines: [],
+      mw_defines: [{
+        type: 'assignment',
+        name: 'mw.banana.phone'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.ring'
+      }],
       source: files.d.source
     })
   )
