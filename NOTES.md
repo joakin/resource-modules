@@ -35,9 +35,9 @@ From code
   - Detect creation of mw.blah.blah = ... and put it in mw_defines
   - Validate mw_requires with mw_defines as we did above
     - Get resourcemodules definitions from core's php file resources.php
-    * Fix mw_defines to be mw.<...> = {} for namespaces and add it's properties
+    - Fix mw_defines to be mw.<...> = {} for namespaces and add it's properties
       there
-    * Test the validation of mw_requires and mw_defines
+    - Test the validation of mw_requires and mw_defines
     * Move require/module.exports out of require/define.js and properly check
       them using the resourcemodules definitions
 * Track async RLmodules too to theck if async requires are in async loaded
