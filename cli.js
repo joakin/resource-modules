@@ -10,12 +10,16 @@ const lint = require('./lib/lint')
 
 import type {Analysis} from './lib/analyze'
 
-const core = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki'
 const coreResources = '/resources/Resources.php'
-// const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/MobileFrontend'
-const folder = '/Users/jhernandez/dev/wikimedia/mediawiki-vagrant/mediawiki/extensions/RelatedArticles'
 
-main(core, folder)
+if (process.argv.length === 3) {
+  const extensionPath = path.resolve(process.argv[2])
+  const corePath = path.resolve(path.join(extensionPath, '../..'))
+  main(corePath, extensionPath)
+} else {
+  console.log('I need a parameter with the path to the extension')
+  process.exit(1)
+}
 
 function main (coreDir, dir) {
   Promise.all([
@@ -29,7 +33,7 @@ function main (coreDir, dir) {
     // Get all ResourceModules definitions
     Promise.all([
       getJSON(dir, 'extension.json').then((json) => json.ResourceModules),
-      getPhpConfig(core, coreResources)
+      getPhpConfig(coreDir, coreResources)
     ]).then(([ext, core]) => Object.assign({}, core, ext))
 
   ])
@@ -48,6 +52,9 @@ function main (coreDir, dir) {
         })
 
       filesWithErrors.forEach(([k, f]) => {
+        // Print analysis data
+        // console.log('\n%s\n%s', k, JSON.stringify(Object.assign(ana.files[k], {source: ''})))
+
         if (f.missingMessages && f.missingMessages.length > 0) {
           const messagesByModule = f.missingMessages.reduce((acc, [msg, modules]) => {
             modules.forEach(([name]) => {
@@ -130,6 +137,14 @@ function main (coreDir, dir) {
       //   Object.keys(ana.files)
       //     .map((f) => [f, ana.files[f].mw_defines].toString())
       //     .join('\n'))
+
+      // console.error(
+      //   JSON.stringify(
+      //     Object.keys(coreAna.files)
+      //     .map((f) => [f, coreAna.files[f].mw_defines])
+      //     .filter(([f, defs]) => defs.some((d) => d.name === 'mw.util'))
+      //   , null, 2)
+      // )
 
       //     return
     })
