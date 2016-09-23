@@ -7,14 +7,12 @@ const defineMw = require('../../lib/visitors/define-mw')
 const {fileAnalysis} = require('../../lib/visitors/types')
 
 const files = {
-  'a': {
+  a: {
     source: `
-    var a = mw.banana = 1
-    1 + (mw.phone.ring = function () {})
-    mw.yes.no = banana
+    mw.banana = {}
     `
   },
-  'b': {
+  b: {
     source: `
     mw.banana = {
       phone: 1,
@@ -22,20 +20,33 @@ const files = {
     }
     `
   },
-  'c': {
+  c: {
+    source: `
+    mw.banana = {}
+    mw.banana.phone = 1
+    mw.banana.ring = function () {}
+    `
+  },
+  d: {
+    source: `
+    mw.banana.phone = 1
+    mw.banana.ring = function () {}
+    `
+  },
+  e: {
     source: `
     this.banana = 1
     a.b = 2
     `
   },
-  'd': {
+  f: {
     source: `
     mw = {
       a: 1
     }
     `
   },
-  'e': {
+  g: {
     source: `
     mw = {
       a: null
@@ -44,34 +55,68 @@ const files = {
   }
 }
 
-test('tracks definition of mw.<...> variables', (t) => {
+test('tracks definition of mw.<...> namespaces', (t) => {
   t.deepEqual(
     walk(defineMw, files.a.source, 'a'),
     fileAnalysis({
-      mw_defines: ['mw.banana', 'mw.phone.ring', 'mw.yes.no'],
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw.banana',
+        definitions: []
+      }],
       source: files.a.source
     })
   )
   t.end()
 })
 
-test('tracks definition of mw.<...> as objects', (t) => {
+test('tracks definitions in mw.<...> namespace object', (t) => {
   t.deepEqual(
     walk(defineMw, files.b.source, 'b'),
     fileAnalysis({
-      mw_defines: ['mw.banana', 'mw.banana.phone', 'mw.banana.ring'],
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw.banana',
+        definitions: ['phone', 'ring']
+      }],
       source: files.b.source
     })
   )
   t.end()
 })
 
-test('doesn\'nt track definition of other variables ', (t) => {
+test('tracks standalone definitions mw.<...>.<...>', (t) => {
   t.deepEqual(
     walk(defineMw, files.c.source, 'c'),
     fileAnalysis({
-      mw_defines: [],
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw.banana',
+        definitions: ['phone', 'ring']
+      }],
       source: files.c.source
+    })
+  )
+  t.end()
+})
+
+test('doesnt track usage of mw.<...> if namespace not defined in file', (t) => {
+  t.deepEqual(
+    walk(defineMw, files.d.source, 'd'),
+    fileAnalysis({
+      mw_defines: [],
+      source: files.d.source
+    })
+  )
+  t.end()
+})
+
+test('doesn\'nt track definition of other variables', (t) => {
+  t.deepEqual(
+    walk(defineMw, files.e.source, 'e'),
+    fileAnalysis({
+      mw_defines: [],
+      source: files.e.source
     })
   )
   t.end()
@@ -79,10 +124,14 @@ test('doesn\'nt track definition of other variables ', (t) => {
 
 test('tracks definition of mw namespace', (t) => {
   t.deepEqual(
-    walk(defineMw, files.d.source, 'd'),
+    walk(defineMw, files.f.source, 'f'),
     fileAnalysis({
-      mw_defines: [ 'mw.a' ],
-      source: files.d.source
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw',
+        definitions: ['a']
+      }],
+      source: files.f.source
     })
   )
   t.end()
@@ -90,10 +139,14 @@ test('tracks definition of mw namespace', (t) => {
 
 test('doesnt track definition of null properties', (t) => {
   t.deepEqual(
-    walk(defineMw, files.e.source, 'e'),
+    walk(defineMw, files.g.source, 'g'),
     fileAnalysis({
-      mw_defines: [],
-      source: files.e.source
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw',
+        definitions: []
+      }],
+      source: files.g.source
     })
   )
   t.end()
