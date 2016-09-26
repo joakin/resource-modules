@@ -10,7 +10,7 @@
     "start": "flow-node lib/cli.js",
     "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\"",
     "type:coverage": "find . -name '*.js' -not -path \"./node_modules/*\"  -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;",
-    "dist": "rm -rf dist/ && mkdir dist/ && find . -name '*.js' -path \"./lib/*\" -exec sh -c 'flow-remove-types --out-dir dist $0' {} \\; && mv dist/lib/* dist/ && rm -r dist/lib && chmod +x dist/cli.js"
+    "dist": "rm -rf dist/ && mkdir dist/ && babel --out-dir dist lib/ && chmod +x dist/cli.js"
   },
   "files": [
     "dist/",
@@ -19,7 +19,10 @@
   "author": "Joaquin Oltra <joaquin@chimeces.com> (http://chimeces.com)",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.14.0",
     "babel-eslint": "^6.1.2",
+    "babel-plugin-transform-flow-strip-types": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
     "eslint-plugin-flowtype": "^2.16.1",
     "flow-bin": "^0.32.0",
     "flow-remove-types": "^1.0.4",
