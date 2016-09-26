@@ -13,7 +13,7 @@
     "dist": "rm -rf dist/ && mkdir dist/ && find . -name '*.js' -path \"./lib/*\" -exec sh -c 'flow-remove-types --out-dir dist $0' {} \\; && mv dist/lib/* dist/ && rm -r dist/lib && chmod +x dist/cli.js"
   },
   "files": [
-    "./dist/",
+    "dist/",
     "resources.php"
   ],
   "author": "Joaquin Oltra <joaquin@chimeces.com> (http://chimeces.com)",
