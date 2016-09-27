@@ -28,8 +28,8 @@ test('it should list templates used in source that are not in the resource modul
   t.deepEqual(getMissingTemplatesErrors(fileAnalysis({
     templates: [s1, s2, s3]
   }), [m1], {}), [
-    [s2, [m1]],
-    [s3, [m1]]
+    { kind: 'template_not_in_modules', template: s2, modules: [m1] },
+    { kind: 'template_not_in_modules', template: s3, modules: [m1] }
   ])
   t.end()
 })
@@ -60,12 +60,13 @@ test('it should complain if templates used in source from other modules are not 
   ], {
     'module1': { templates: {'Drawer.hogan': './banana/phone.hogan'} }
   }), [
-    [
-      { module: 'module2', fileName: 'banana.hogan' },
-      [
+    {
+      kind: 'template_not_in_modules',
+      template: { module: 'module2', fileName: 'banana.hogan' },
+      modules: [
         ['module1', { templates: {'Drawer.hogan': './banana/phone.hogan'} }]
       ]
-    ]
+    }
   ])
   t.end()
 })
