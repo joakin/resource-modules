@@ -40,6 +40,7 @@ From code
     - Test the validation of mw_requires and mw_defines
     * Move require/module.exports out of require/define.js and properly check
       them using the resourcemodules definitions
+* Lint unused messages in resource modules definitions/files
 * Track async RLmodules too to theck if async requires are in async loaded
   RLmodules
 * Do duplicate entries in extension.json result in duplicate sources in the
