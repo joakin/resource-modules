@@ -38,7 +38,8 @@
   "standard": {
     "parser": "babel-eslint",
     "ignore": [
-      "flow-typed/"
+      "flow-typed/",
+      "dist/"
     ],
     "plugins": [
       "flowtype"
