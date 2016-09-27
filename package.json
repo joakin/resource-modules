@@ -43,5 +43,9 @@
     "plugins": [
       "flowtype"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joakin/resource-modules.git"
   }
 }
