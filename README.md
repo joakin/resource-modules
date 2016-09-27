@@ -1,5 +1,4 @@
-resource-modules
-================
+# resource-modules
 
 CLI tool that lints frontend resources in mediawiki extensions. Analyzes the
 sources and builds a dependency tree from source, and then lints that
@@ -8,6 +7,8 @@ information with the extension.json ResourceModules declarations.
 It assumes the mediawiki extension contains a `resources/` folder with the
 frontend assets and a `extension.json` file with a `ResourceModules` key with
 the ResourceLoader configuration.
+
+See [T146748](https://phabricator.wikimedia.org/T146748) for more information.
 
 ## Install
 
