@@ -38,11 +38,17 @@ test('it should list by message used in source in which resource modules it is n
 })
 
 test('it should list properly even when messages is a weird object instead of an array', (t) => {
-  const m1 = ['module1', { messages: {'0': 'phone', '1': 'ring', 'banana': function () {}} }]
+  const m1 = ['module1', {
+    messages: {
+      '0': 'phone',
+      '1': 'ring',
+      'banana': function () {}
+    }
+  }]
   t.deepEqual(getMissingMessagesErrors(fileAnalysis({
-    messages: ['banana', 'phone']
+    messages: ['banana', 'phone', 'apple']
   }), [m1]), [
-    ['banana', [m1]]
+    ['apple', [m1]]
   ])
   t.end()
 })
