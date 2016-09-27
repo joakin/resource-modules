@@ -34,37 +34,72 @@ test('it should list templates used in source that are not in the resource modul
   t.end()
 })
 
-test('it should not complain if templates used in source from other modules are in the resource modules', (t) => {
+test('it should not complain if templates used in source from other modules are in the resource modules dependencies', (t) => {
+  const m1 = {
+    dependencies: ['module2'],
+    templates: {
+      'Drawer.hogan': './banana/phone.hogan'
+    }
+  }
   t.deepEqual(getMissingTemplatesErrors(fileAnalysis({
     templates: [
       { module: 'module1', fileName: 'Drawer.hogan' },
       { module: 'module2', fileName: 'banana.hogan' }
     ]
   }), [
-    ['module1', { templates: {'Drawer.hogan': './banana/phone.hogan'} }]
+    ['module1', m1]
   ], {
-    'module1': { templates: {'Drawer.hogan': './banana/phone.hogan'} },
+    'module1': m1,
     'module2': { templates: {'banana.hogan': './banana/banana.hogan'} }
   }), [])
   t.end()
 })
 
 test('it should complain if templates used in source from other modules are not in the resource modules', (t) => {
+  const m1 = { templates: {'Drawer.hogan': './banana/phone.hogan'} }
   t.deepEqual(getMissingTemplatesErrors(fileAnalysis({
     templates: [
       { module: 'module1', fileName: 'Drawer.hogan' },
       { module: 'module2', fileName: 'banana.hogan' }
     ]
   }), [
-    ['module1', { templates: {'Drawer.hogan': './banana/phone.hogan'} }]
+    ['module1', m1]
   ], {
-    'module1': { templates: {'Drawer.hogan': './banana/phone.hogan'} }
+    'module1': m1
   }), [
     {
       kind: 'template_not_in_modules',
       template: { module: 'module2', fileName: 'banana.hogan' },
       modules: [
         ['module1', { templates: {'Drawer.hogan': './banana/phone.hogan'} }]
+      ]
+    }
+  ])
+  t.end()
+})
+
+test('it should complain if templates used in source from other modules are not in the dependencies in resource modules', (t) => {
+  const m1 = {
+    templates: {
+      'Drawer.hogan': './banana/phone.hogan'
+    }
+  }
+  t.deepEqual(getMissingTemplatesErrors(fileAnalysis({
+    templates: [
+      { module: 'module1', fileName: 'Drawer.hogan' },
+      { module: 'module2', fileName: 'banana.hogan' }
+    ]
+  }), [
+    ['module1', m1]
+  ], {
+    'module1': m1,
+    'module2': { templates: {'banana.hogan': './banana/banana.hogan'} }
+  }), [
+    {
+      kind: 'template_not_in_dependencies',
+      template: { module: 'module2', fileName: 'banana.hogan' },
+      modules: [
+        ['module1', m1]
       ]
     }
   ])
