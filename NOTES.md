@@ -38,11 +38,14 @@ From code
     - Fix mw_defines to be mw.<...> = {} for namespaces and add it's properties
       there
     - Test the validation of mw_requires and mw_defines
-    * Move require/module.exports out of require/define.js and properly check
-      them using the resourcemodules definitions
-* Lint unused messages in resource modules definitions/files
+* Move require/module.exports out of require/define.js and properly check
+  them using the resourcemodules definitions
+* Lint for unused messages in resource modules definitions/files
+* Track async mw.loader.using(str[], fn, fn) also, not only the .done version
 * Track async RLmodules too to theck if async requires are in async loaded
   RLmodules
+* See if we can include visualeditor's modules in extension.json but not load
+  them
 * Do duplicate entries in extension.json result in duplicate sources in the
   bundles?
 * Collapsing RL modules into bigger modules
