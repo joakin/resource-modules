@@ -9,7 +9,7 @@
   "scripts": {
     "start": "flow-node lib/cli.js",
     "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\"",
-    "type:coverage": "find . -name '*.js' -not -path \"./node_modules/*\"  -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;",
+    "type:coverage": "find ./{lib,test} -name '*.js' -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;",
     "dist": "rm -rf dist/ && mkdir dist/ && babel --out-dir dist lib/ && chmod +x dist/cli.js"
   },
   "files": [
