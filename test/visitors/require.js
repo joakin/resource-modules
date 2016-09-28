@@ -35,6 +35,11 @@ const files = {
       var e = require('e')
       var f = mw.mobileFrontend.require('f')
     })
+    mw.loader.using('resourceloadermodule', () => {
+      var g = M.require('g')
+      var h = require('h')
+      var i = mw.mobileFrontend.require('i')
+    }, () => console.log('banana'))
     `
   }
 }
@@ -63,7 +68,11 @@ test('doesn\'t allow usage of require in its various forms with non-string liter
 test('tracks usages of async requires in its various forms in .async_requires', (t) => {
   t.deepEqual(
     walk(requirev, files.d.source, 'd'),
-    fileAnalysis({ async_requires: ['a', 'b', 'c', 'd', 'e', 'f'], requires: [], source: files.d.source })
+    fileAnalysis({
+      async_requires: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+      requires: [],
+      source: files.d.source
+    })
   )
   t.end()
 })
