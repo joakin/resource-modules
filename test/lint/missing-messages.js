@@ -30,9 +30,8 @@ test('it should list by message used in source in which resource modules it is n
   t.deepEqual(getMissingMessagesErrors(fileAnalysis({
     messages: ['banana', 'phone']
   }), [m1, m2, m3, m4]), [
-    ['banana',
-      [m2, m4]],
-    ['phone', [m3]]
+    { message: 'banana', modules: [m2, m4] },
+    { message: 'phone', modules: [m3] }
   ])
   t.end()
 })
@@ -48,7 +47,7 @@ test('it should list properly even when messages is a weird object instead of an
   t.deepEqual(getMissingMessagesErrors(fileAnalysis({
     messages: ['banana', 'phone', 'apple']
   }), [m1]), [
-    ['apple', [m1]]
+    { message: 'apple', modules: [m1] }
   ])
   t.end()
 })
