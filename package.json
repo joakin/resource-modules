@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "flow-node lib/cli.js",
-    "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\"",
+    "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\" | tap-spec",
     "type:coverage": "find ./{lib,test} -name '*.js' -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;",
     "dist": "rm -rf dist/ && mkdir dist/ && babel --out-dir dist lib/ && chmod +x dist/cli.js"
   },
@@ -27,6 +27,7 @@
     "flow-bin": "^0.32.0",
     "flow-remove-types": "^1.0.4",
     "standard": "^8.0.0",
+    "tap-spec": "^4.1.1",
     "tape": "^4.6.0"
   },
   "dependencies": {
