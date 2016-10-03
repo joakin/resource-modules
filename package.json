@@ -7,10 +7,9 @@
     "resource-modules": "./dist/cli.js"
   },
   "scripts": {
-    "start": "flow-node lib/cli.js",
-    "test": "standard && flow && flow-node ./node_modules/tape/bin/tape \"test/**/*.js\" | tap-spec",
-    "type:coverage": "find ./{lib,test} -name '*.js' -exec sh -c 'echo \"$0\"; flow coverage $0' {} \\;",
-    "dist": "rm -rf dist/ && mkdir dist/ && babel --out-dir dist lib/ && chmod +x dist/cli.js"
+    "start": "tsc && node dist/cli.js",
+    "test": "tsc && ./node_modules/tape/bin/tape \"dist/test/**/*.js\" | tap-spec",
+    "dist": "rm -rf dist/ && mkdir dist/ && tsc && chmod +x dist/cli.js"
   },
   "files": [
     "dist/",
@@ -19,32 +18,16 @@
   "author": "Joaquin Oltra <joaquin@chimeces.com> (http://chimeces.com)",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.14.0",
-    "babel-eslint": "^6.1.2",
-    "babel-plugin-transform-flow-strip-types": "^6.14.0",
-    "babel-preset-es2015": "^6.14.0",
-    "eslint-plugin-flowtype": "^2.16.1",
-    "flow-bin": "^0.32.0",
-    "flow-remove-types": "^1.0.4",
-    "standard": "^8.0.0",
+    "@types/node": "^6.0.41",
     "tap-spec": "^4.1.1",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "typescript": "^2.0.3"
   },
   "dependencies": {
     "acorn": "^3.3.0",
     "deep-equal": "^1.0.1",
     "escodegen": "^1.8.1",
     "recursive-readdir": "^2.0.0"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "flow-typed/",
-      "dist/"
-    ],
-    "plugins": [
-      "flowtype"
-    ]
   },
   "repository": {
     "type": "git",

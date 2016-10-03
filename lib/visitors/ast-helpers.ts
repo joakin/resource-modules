@@ -1,21 +1,8 @@
-// @flow
+import prn from '../prn-ast'
 
-const prn = require('../prn-ast')
+import {Node} from 'acorn'
 
-import type {Node} from 'acorn'
-
-module.exports = {
-  isI18n,
-  isTemplate,
-  isDefine,
-  isRequire,
-  isMwLoader,
-  isObjectAccess,
-  is,
-  named
-}
-
-function isI18n (node: Node): boolean {
+export function isI18n (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
     isObjectAccess('mw', 'msg', node.callee)
@@ -30,7 +17,7 @@ function isI18n (node: Node): boolean {
   return false
 }
 
-function isTemplate (node: Node): boolean {
+export function isTemplate (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
     isObjectAccess('mw.template', 'get', node.callee)
@@ -45,7 +32,7 @@ function isTemplate (node: Node): boolean {
   return false
 }
 
-function isDefine (node: Node): boolean {
+export function isDefine (node: Node): boolean {
   if (
     node.type === 'CallExpression' && (
       isObjectAccess('M', 'define', node.callee) ||
@@ -62,7 +49,7 @@ function isDefine (node: Node): boolean {
   return false
 }
 
-function isRequire (node: Node): boolean {
+export function isRequire (node: Node): boolean {
   if (
     node.type === 'CallExpression' && (
       (node.callee.type === 'Identifier' && named('require', node.callee)) ||
@@ -80,7 +67,7 @@ function isRequire (node: Node): boolean {
   return false
 }
 
-function isMwLoader (node: Node): boolean {
+export function isMwLoader (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
     node.callee.type === 'MemberExpression' && (
@@ -120,7 +107,7 @@ function isMwLoader (node: Node): boolean {
   return false
 }
 
-function isObjectAccess (obj: string, prop: ?string, node: Node): boolean {
+export function isObjectAccess (obj: string, prop: string|null, node: Node): boolean {
   if (node.type !== 'MemberExpression') return false
 
   const {object, property} = node
@@ -147,11 +134,11 @@ function isObjectAccess (obj: string, prop: ?string, node: Node): boolean {
   }
 }
 
-function is (type: string, obj: {type: string}): boolean {
+export function is (type: string, obj: {type: string}): boolean {
   return obj.type === type
 }
 
-function named (name: string[]|string, obj: {name: string}): boolean {
+export function named (name: string[]|string, obj: {name: string}): boolean {
   return Array.isArray(name)
   ? name.some((n) => named(n, obj))
   : obj.name === name

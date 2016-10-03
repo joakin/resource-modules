@@ -1,20 +1,22 @@
-// @flow
+export type MWDefine = MWNamespace | MWAssignment
 
-export type MWDefine = {
+interface MWNamespace {
   type: 'namespace',
   name: string,
   definitions: string[]
-} | {
+}
+
+interface MWAssignment {
   type: 'assignment',
   name: string
 }
 
-export type Template = {
+export interface Template {
   module: string,
   fileName: string
 }
 
-export type FileAnalysis = {
+export interface FileAnalysis {
   source: string,
   requires: string[],
   async_requires: string[],
@@ -25,7 +27,7 @@ export type FileAnalysis = {
   mw_defines: MWDefine[]
 }
 
-exports.fileAnalysis = function (extra: Object): FileAnalysis {
+export function fileAnalysis (extra: Object): FileAnalysis {
   return Object.assign({}, {
     source: '',
     requires: [],
@@ -38,7 +40,7 @@ exports.fileAnalysis = function (extra: Object): FileAnalysis {
   }, extra)
 }
 
-export type State = {
+export interface State {
   data: FileAnalysis,
   file: string,
   analysisErrors: string[]

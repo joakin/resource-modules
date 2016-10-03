@@ -1,12 +1,10 @@
-// @flow
+import {Node} from 'acorn'
+import {VisitorMap} from 'acorn/dist/walk'
+import {Template, State} from './types'
 
-import type {Node} from 'acorn'
-import type {VisitorMap} from 'acorn/dist/walk'
-import type {Template, State} from './types'
-
-const {isTemplate} = require('./ast-helpers')
-const prn = require('../prn-ast')
-const equal = require('deep-equal')
+import {isTemplate} from './ast-helpers'
+import prn from '../prn-ast'
+import equal = require('deep-equal')
 
 const visitor: VisitorMap<State> = {
   CallExpression (node: Node, {data}: State, ancestors: Node[]) {
@@ -14,9 +12,10 @@ const visitor: VisitorMap<State> = {
       node.type === 'CallExpression' &&
       isTemplate(node)
     ) {
+      const [first, second]: [Node, Node] = [node.arguments[0], node.arguments[1]]
       const tpl: Template = {
-        module: node.arguments[0].type === 'Literal' ? node.arguments[0].value : '',
-        fileName: node.arguments[1].type === 'Literal' ? node.arguments[1].value : ''
+        module: first.type === 'Literal' ? first.value : '',
+        fileName: second.type === 'Literal' ? second.value : ''
       }
 
       data.templates = data.templates || []
@@ -29,4 +28,4 @@ const visitor: VisitorMap<State> = {
     }
   }
 }
-module.exports = visitor
+export default visitor

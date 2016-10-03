@@ -1,16 +1,18 @@
-// @flow
+import {Template, FileAnalysis} from '../visitors/types'
+import {Module, MissingTemplate} from './types'
+import {getDependenciesWithModule} from './helpers'
+import {ResourceModules} from '../types'
 
-import type {FileAnalysis} from '../visitors/types'
-import type {Module, MissingTemplate} from './types'
-const {getDependenciesWithModule} = require('./helpers')
+export default function getMissingTemplatesErrors (
+  ana: FileAnalysis, inModules: Module[], resourceModules: ResourceModules
+): MissingTemplate[] {
 
-module.exports = function getMissingTemplatesErrors (ana: FileAnalysis, inModules: Module[], resourceModules: Object): MissingTemplate[] {
   // Templates
   if (ana.templates && ana.templates.length > 0) {
     // templates: [ { module: template file, fileName: 'Drawer.hogan' } ],
-    return ana.templates.reduce((errs, template) => {
+    return ana.templates.reduce((errs: MissingTemplate[], template: Template): MissingTemplate[] => {
       // Modules with missing templates
-      const missing = inModules.filter(([name, module]) => {
+      const missing = inModules.filter(([name, module]: Module): boolean => {
         if (template.module === name) {
           if (!module.templates) return true
           if (module.templates.constructor === Object) {
@@ -21,7 +23,7 @@ module.exports = function getMissingTemplatesErrors (ana: FileAnalysis, inModule
         } else {
           const submoduleTemplates = resourceModules[template.module] &&
             resourceModules[template.module].templates
-          return !(submoduleTemplates && submoduleTemplates[template.fileName])
+          return !(submoduleTemplates && submoduleTemplates[<any>template.fileName])
         }
       })
       if (missing.length > 0) {

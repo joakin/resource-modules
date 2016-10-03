@@ -1,10 +1,8 @@
-// @flow
+import {Node} from 'acorn'
+import {VisitorMap} from 'acorn/dist/walk'
+import {MWDefine, State} from './types'
 
-import type {Node} from 'acorn'
-import type {VisitorMap} from 'acorn/dist/walk'
-import type {MWDefine, State} from './types'
-
-const prn = require('../prn-ast')
+import prn from '../prn-ast'
 
 const visitor: VisitorMap<State> = {
   AssignmentExpression (node: Node, {data}: State/* , ancestors */): void {
@@ -29,7 +27,7 @@ const visitor: VisitorMap<State> = {
     }
   }
 }
-module.exports = visitor
+export default visitor
 
 function addNamespace (name: string, defines: MWDefine[]): void {
   if (defines.filter((d) => d.name === name).length) {
@@ -42,8 +40,7 @@ function addNamespace (name: string, defines: MWDefine[]): void {
   })
 }
 
-/* global acorn$Property */
-function addProperties (name: string, defines: MWDefine[], props: (acorn$Property|string)[]) {
+function addProperties (name: string, defines: MWDefine[], props: (acorn$Property|string)[]): void {
   const namespaceMatches = defines.filter((d) => d.type === 'namespace' && d.name === name)
   if (namespaceMatches.length === 1) {
     const ns = namespaceMatches[0]

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// @flow
 
-const path = require('path')
-const exec = require('child_process').exec
+import * as path from 'path'
+import {exec} from 'child_process'
 
-const visitors = require('./visitors')
-const {getFiles, getJSON} = require('./fs')
-const {analyzeFiles} = require('./analyze')
-const lint = require('./lint')
+import visitors from './visitors'
+import {getFiles, getJSON} from './fs'
+import {Analysis, analyzeFiles} from './analyze'
+import lint from './lint'
+import {FileErrors, MissingMessage} from './lint/types'
 
-import type {Analysis} from './analyze'
+import {ResourceModules, ExtensionJson} from './types'
 
 const coreResources = '/resources/Resources.php'
 
@@ -22,7 +22,7 @@ if (process.argv.length === 3) {
   process.exit(1)
 }
 
-function main (coreDir, dir) {
+function main (coreDir: string, dir: string): void {
   Promise.all([
 
     // Get frontend assets
@@ -33,12 +33,13 @@ function main (coreDir, dir) {
 
     // Get all ResourceModules definitions
     Promise.all([
-      getJSON(dir, 'extension.json').then((json) => json.ResourceModules),
+      getJSON(dir, 'extension.json').then((json) => (<ExtensionJson>json).ResourceModules),
       getPhpConfig(coreDir, coreResources)
-    ]).then(([ext, core]) => Object.assign({}, core, ext))
+    ]).then(([ext, core]: [ResourceModules, ResourceModules]): ResourceModules =>
+      <ResourceModules>Object.assign({}, core, ext))
 
-  ])
-    .then(([ana, coreAna, resourceModules]: [Analysis, Analysis, Object]) => {
+  ] as [Promise<Analysis>, Promise<Analysis>, Promise<ResourceModules>])
+    .then(([ana, coreAna, resourceModules]: [Analysis, Analysis, ResourceModules]) => {
       const errors = lint(ana, coreAna, resourceModules)
       let exit = 0
 
@@ -47,17 +48,22 @@ function main (coreDir, dir) {
         console.error(errors.skippedBecauseNotInResourceModules.map((f) => '  ' + f).join('\n'))
       }
 
-      const filesWithErrors = Object.keys(errors.files)
-        .map((fk) => [fk, errors.files[fk]])
-        .filter(([file, fileErrors]) => {
-          return Object.keys(fileErrors).some((k) => Array.isArray(fileErrors[k]) && (fileErrors[k].length > 0))
+      type FileAndErrors = [string, FileErrors]
+      const filesWithErrors: FileAndErrors[] = Object.keys(errors.files)
+        .map((fk: string): FileAndErrors => [fk, errors.files[fk]])
+        .filter(([file, fileErrors]: FileAndErrors): boolean => {
+          return Object.keys(fileErrors).some((k: string): boolean =>
+            Array.isArray(fileErrors[k]) && (fileErrors[k].length > 0))
         })
 
       if (filesWithErrors.length > 0) exit = 1
 
       filesWithErrors.forEach(([k, f]) => {
         if (f.missingMessages && f.missingMessages.length > 0) {
-          const messagesByModule = f.missingMessages.reduce((acc, {message, modules}) => {
+          interface MessagesByModule {
+            [key: string]: string[]
+          }
+          const messagesByModule: MessagesByModule = f.missingMessages.reduce((acc: MessagesByModule, {message, modules}: MissingMessage): MessagesByModule => {
             modules.forEach(([name]) => {
               acc[name] = (acc[name] || [])
               acc[name].push(message)
@@ -98,21 +104,21 @@ function main (coreDir, dir) {
 
         if (f.dependencies && f.dependencies.length > 0) {
           console.error(`\nError: Dependency problems in file: ${k}:`)
-          f.dependencies.forEach(({kind, id, where}) => {
-            switch (kind) {
+          f.dependencies.forEach((error) => {
+            switch (error.kind) {
               case 'multiple_defines':
-                console.error(`  Required ${id} defined in multiple files:`)
-                console.error(where.map(([f]) => `    ${f}`).join('\n'))
+                console.error(`  Required ${error.id} defined in multiple files:`)
+                console.error(error.where.map(([f]) => `    ${f}`).join('\n'))
                 break
               case 'not_defined':
-                console.error(`  Required ${id} not defined in any source files`)
+                console.error(`  Required ${error.id} not defined in any source files`)
                 break
               case 'file_in_multiple_dependencies':
-                console.error(`  Required ${id} defined in file ${where[0]} found in multiple ResourceModules:`)
-                console.error(where[1].map((m) => `    ${m}`).join('\n'))
+                console.error(`  Required ${error.id} defined in file ${error.where[0]} found in multiple ResourceModules:`)
+                console.error(error.where[1].map((m) => `    ${m}`).join('\n'))
                 break
               case 'not_found':
-                console.error(`  Required ${id} defined in file ${where} not found in any ResourceModules`)
+                console.error(`  Required ${error.id} defined in file ${error.where} not found in any ResourceModules`)
                 break
             }
           })
@@ -121,36 +127,41 @@ function main (coreDir, dir) {
 
       process.exit(exit)
     })
-    .catch((e) => {
+    .catch((e: Error) => {
       console.error(e)
       process.exit(1)
     })
 }
 
-function analyzeJSFiles (dir: string, resources: string, printAnalysisErrors: boolean): Promise<Analysis> {
+function analyzeJSFiles (
+  dir: string, resources: string, printAnalysisErrors: boolean
+): Promise<Analysis> {
   return getFiles(path.join(dir, resources))
     // Remove folder prefix and filter only JS files
-    .then((files: string[]) =>
+    .then((files: string[]): string[] =>
       files.map(replace(dir + path.sep, '')).filter(isValidJSFile))
     // Analyze the JS files
-    .then((jsFiles: string[]) => analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
+    .then((jsFiles: string[]): Promise<Analysis> =>
+      analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
 }
 
-function isValidJSFile (name) {
+function isValidJSFile (name: string) {
   return (
     name.slice(name.length - 3) === '.js' &&
     name.indexOf('-skip.js') === -1
   )
 }
 
-function replace (rpl, s) { return (str) => str.replace(rpl, s) }
+function replace (rpl: string, s: string) {
+  return (str: string): string => str.replace(rpl, s)
+}
 
-function getPhpConfig (dir: string, file: string): Promise<Object> {
+function getPhpConfig (dir: string, file: string): Promise<ResourceModules> {
   return new Promise((resolve, reject) => {
     exec(`php ${path.join(__dirname, '..', 'resources.php')} ${dir} ${file}`, (error, stdout, stderr) => {
       if (error) return reject(error)
       console.error(stderr)
       resolve(stdout)
     })
-  }).then((t) => JSON.parse(t.toString()))
+  }).then((t) => (<ResourceModules>JSON.parse(t.toString())))
 }

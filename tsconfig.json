@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es5",
+    "lib": ["es5", "es6", "es2015.promise"],
+    "typeRoots": [
+      "./lib/type-defs/",
+      "./node_modules/@types/"
+    ],
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true
+  },
+  "include": [
+    "./lib/**/*"
+  ]
+}

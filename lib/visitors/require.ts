@@ -1,11 +1,9 @@
-// @flow
+import {Node} from 'acorn'
+import {VisitorMap} from 'acorn/dist/walk'
+import {State} from './types'
 
-import type {Node} from 'acorn'
-import type {VisitorMap} from 'acorn/dist/walk'
-import type {State} from './types'
-
-const {isRequire, isMwLoader} = require('./ast-helpers')
-const prn = require('../prn-ast')
+import {isRequire, isMwLoader} from './ast-helpers'
+import prn from '../prn-ast'
 
 const visitor: VisitorMap<State> = {
   CallExpression (node: Node, {data}: State, ancestors: Node[]) {
@@ -34,4 +32,4 @@ const visitor: VisitorMap<State> = {
     }
   }
 }
-module.exports = visitor
+export default visitor
