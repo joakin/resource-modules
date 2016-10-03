@@ -2,14 +2,14 @@ import {Node} from 'acorn'
 import {VisitorMap} from 'acorn/dist/walk'
 import {State} from './types'
 
-import {isDefine} from './ast-helpers'
+import {isMFDefine} from './ast-helpers'
 import prn from '../prn-ast'
 
 const visitor: VisitorMap<State> = {
   CallExpression (node: Node, {data}: State, ancestors: Node[]) {
     if (
       node.type === 'CallExpression' &&
-      isDefine(node)
+      isMFDefine(node)
     ) {
       const firstArg = node.arguments[0]
       const defined = firstArg.type === 'Literal' ? firstArg.value : ''

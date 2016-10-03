@@ -32,7 +32,7 @@ export function isTemplate (node: Node): boolean {
   return false
 }
 
-export function isDefine (node: Node): boolean {
+export function isMFDefine (node: Node): boolean {
   if (
     node.type === 'CallExpression' && (
       isObjectAccess('M', 'define', node.callee) ||
@@ -51,15 +51,29 @@ export function isDefine (node: Node): boolean {
 
 export function isRequire (node: Node): boolean {
   if (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' && named('require', node.callee)
+  ) {
+    if (node.arguments[0].type !== 'Literal') {
+      throw new Error(
+        `Require must be used with string literals for consistency\n${prn(node)}`)
+    }
+    return true
+  }
+
+  return false
+}
+
+export function isMFRequire (node: Node): boolean {
+  if (
     node.type === 'CallExpression' && (
-      (node.callee.type === 'Identifier' && named('require', node.callee)) ||
       isObjectAccess('M', 'require', node.callee) ||
       isObjectAccess('mw.mobileFrontend', 'require', node.callee)
     )
   ) {
     if (node.arguments[0].type !== 'Literal') {
       throw new Error(
-        `Require must be used with string literals for consistency\n${prn(node)}`)
+        `M.require must be used with string literals for consistency\n${prn(node)}`)
     }
     return true
   }

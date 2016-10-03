@@ -2,14 +2,14 @@ import {Node} from 'acorn'
 import {VisitorMap} from 'acorn/dist/walk'
 import {State} from './types'
 
-import {isRequire, isMwLoader} from './ast-helpers'
+import {isMFRequire, isMwLoader} from './ast-helpers'
 import prn from '../prn-ast'
 
 const visitor: VisitorMap<State> = {
   CallExpression (node: Node, {data}: State, ancestors: Node[]) {
     if (
       node.type === 'CallExpression' &&
-      isRequire(node)
+      isMFRequire(node)
     ) {
       const firstArg = node.arguments[0]
       const required = firstArg.type === 'Literal' ? firstArg.value : ''

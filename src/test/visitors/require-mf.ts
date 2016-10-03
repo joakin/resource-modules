@@ -1,7 +1,7 @@
 import test = require('tape')
 
 import {walk} from '../../analyze'
-import requirev from '../../visitors/require'
+import requireMF from '../../visitors/require-mf'
 import {fileAnalysis} from '../../visitors/types'
 
 const files = {
@@ -14,9 +14,6 @@ const files = {
   },
   'aa': {
     source: `var a = M.require(a)`
-  },
-  'bb': {
-    source: `var b = require(b)`
   },
   'cc': {
     source: `var c = mw.mobileFrontend.require(c)`
@@ -44,30 +41,27 @@ const files = {
 
 test('tracks usages of require in its various forms in .requires', (t) => {
   t.deepEqual(
-    walk(requirev, files.a.source, 'a'),
-    fileAnalysis({ async_requires: [], requires: ['a', 'b', 'c'], source: files.a.source })
+    walk(requireMF, files.a.source, 'a'),
+    fileAnalysis({ async_requires: [], requires: ['a', 'c'], source: files.a.source })
   )
   t.end()
 })
 
 test('doesn\'t allow usage of require in its various forms with non-string literals', (t) => {
   t.throws(() => {
-    walk(requirev, files.aa.source, 'aa')
-  }, /Require must be used with string literals/)
+    walk(requireMF, files.aa.source, 'aa')
+  }, /M.require must be used with string literals/)
   t.throws(() => {
-    walk(requirev, files.bb.source, 'bb')
-  }, /Require must be used with string literals/)
-  t.throws(() => {
-    walk(requirev, files.cc.source, 'cc')
-  }, /Require must be used with string literals/)
+    walk(requireMF, files.cc.source, 'cc')
+  }, /M.require must be used with string literals/)
   t.end()
 })
 
 test('tracks usages of async requires in its various forms in .async_requires', (t) => {
   t.deepEqual(
-    walk(requirev, files.d.source, 'd'),
+    walk(requireMF, files.d.source, 'd'),
     fileAnalysis({
-      async_requires: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+      async_requires: ['a', 'c', 'd', 'f', 'g', 'i'],
       requires: [],
       source: files.d.source
     })

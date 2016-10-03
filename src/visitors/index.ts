@@ -3,16 +3,16 @@ import {Visitor, VisitorMap} from 'acorn/dist/walk'
 
 import {State} from './types'
 
-import visitorRequire from './require'
-import visitorDefine from './define'
+import visitorRequireMF from './require-mf'
+import visitorDefineMF from './define-mf'
 import visitorTemplate from './template'
 import visitorI18n from './i18n'
 import visitorRequireMw from './require-mw'
 import visitorDefineMw from './define-mw'
 
 const visitor: VisitorMap<State> = combineVisitors([
-  visitorRequire,
-  visitorDefine,
+  visitorRequireMF,
+  visitorDefineMF,
   visitorTemplate,
   visitorI18n,
   visitorRequireMw,

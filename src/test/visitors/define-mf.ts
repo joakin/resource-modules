@@ -1,7 +1,7 @@
 import test = require('tape')
 
 import {walk} from '../../analyze'
-import define from '../../visitors/define'
+import define from '../../visitors/define-mf'
 import {fileAnalysis} from '../../visitors/types'
 
 const files = {
