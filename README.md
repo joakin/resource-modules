@@ -28,6 +28,48 @@ You can also set it up locally for your project:
     #   }
     npm run lint
 
+## Features
+
+* Templates
+  * Forces usage of `mw.template.get` with string literals (no variables)
+  * Complains when template used in source is not on ResourceModules
+* i18n messages
+  * Forces usage of `mw.msg` with string literals
+  * Complains when message used in source is not on its ResourceModule or other
+    modules in the dependency graph
+* Unused files
+  * Warns about files not defined in any ResourceModules
+    * Only warning because there may be files loaded on hooks depending on
+      runtime checks
+* MobileFrontend modules (`mw.mobileFrontend.define`
+  & `mw.mobileFrontend.require`)
+  * Complains about unused `M.define`s
+  * Checks that `M.require`d modules are `M.define`d in some dependency script
+    (in same ResourceModule or a dependency)
+* MobileFrontend modules (`mw.mobileFrontend.define`
+  & `mw.mobileFrontend.require`)
+  * Complains about unused `M.define`s
+  * Checks that `M.require`d modules are `M.define`d in some dependency script
+    (in same ResourceModule or a dependency)
+* Global `mw` namespaces/usages
+  * Tracks definitions of `mw.X = { ... }` and `mw.X.Y = ...` global
+    definitions to a good degree, from the extension and core. (There are
+    patterns in mediawiki core that are too dynamic to be tracked).
+  * Tracks usages of `mw.X` in sources
+  * Complains when used `mw.X` globals are not in previously defined scripts in
+    ResourceModules
+
+### Possible future improvements
+
+* Track and lint the broken version of `require/module.exports` that
+  ResourceLoader exposes (ResourceModule based scope instead of file based
+  scope like in common.js modules)
+* Lint for messages defined in resource modules not used in sources or
+  dependent sources
+* Lint async requires to be correct too
+* Automatic restructuring/collapsing of ResourceModules configuration
+* Validate template files actually exist
+
 ## Development
 
 `resource-modules` requires node.js 4+ and is written in typed javascript using
@@ -36,13 +78,13 @@ You can also set it up locally for your project:
     npm install
     npm start /path/to/mediawiki/extension
 
-To run the linter, type checker, and tests:
+To run the type checker, and tests:
 
     npm test
 
 If you want to run them in watch mode:
 
     npm install -g nodemon
-    nodemon --exec "npm test"
+    nodemon -e "ts" -w src/ --exec "npm test"
 
 [typescript]: https://typescript.org/
