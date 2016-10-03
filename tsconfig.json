@@ -6,7 +6,7 @@
     "target": "es5",
     "lib": ["es5", "es6", "es2015.promise"],
     "typeRoots": [
-      "./lib/type-defs/",
+      "./src/type-defs/",
       "./node_modules/@types/"
     ],
     "noImplicitReturns": true,
@@ -16,6 +16,6 @@
     "noImplicitThis": true
   },
   "include": [
-    "./lib/**/*"
+    "./src/**/*"
   ]
 }
