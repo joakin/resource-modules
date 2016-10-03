@@ -1,9 +1,7 @@
-// @flow
+import test = require('tape')
 
-const test = require('tape')
-
-const prn = require('../lib/prn-ast')
-const {parse} = require('../lib/analyze')
+import prn from '../prn-ast'
+import {parse} from '../analyze'
 
 test('returns the ast as text with line and number', (t) => {
   t.equal(

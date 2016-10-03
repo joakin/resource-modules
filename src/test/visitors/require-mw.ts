@@ -1,10 +1,8 @@
-// @flow
+import test = require('tape')
 
-const test = require('tape')
-
-const {walk} = require('../../lib/analyze')
-const requireMw = require('../../lib/visitors/require-mw')
-const {fileAnalysis} = require('../../lib/visitors/types')
+import {walk} from '../../analyze'
+import requireMw from '../../visitors/require-mw'
+import {fileAnalysis} from '../../visitors/types'
 
 const files = {
   'a': {

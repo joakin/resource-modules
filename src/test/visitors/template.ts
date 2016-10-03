@@ -1,8 +1,8 @@
-const test = require('tape')
+import test = require('tape')
 
-const {walk} = require('../../lib/analyze')
-const template = require('../../lib/visitors/template')
-const {fileAnalysis} = require('../../lib/visitors/types')
+import {walk} from '../../analyze'
+import template from '../../visitors/template'
+import {fileAnalysis} from '../../visitors/types'
 
 const files = {
   'a': {

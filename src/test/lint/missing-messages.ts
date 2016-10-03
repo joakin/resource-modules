@@ -1,9 +1,7 @@
-// @flow
+import test = require('tape')
 
-const test = require('tape')
-
-const {fileAnalysis} = require('../../lib/visitors/types')
-const getMissingMessagesErrors = require('../../lib/lint/missing-messages')
+import {fileAnalysis} from '../../visitors/types'
+import getMissingMessagesErrors from '../../lint/missing-messages'
 
 test('won\'t return errors if there are not messages', (t) => {
   t.deepEqual(getMissingMessagesErrors(fileAnalysis({}), [], {}), [])

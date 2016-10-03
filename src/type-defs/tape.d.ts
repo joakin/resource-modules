@@ -1,4 +1,4 @@
 declare module "tape" {
-  function test (...args: any[]): void
+  function test (subject: string, cb: (t: any) => void): void
   export = test 
 }

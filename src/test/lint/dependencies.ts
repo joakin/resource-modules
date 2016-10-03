@@ -1,9 +1,7 @@
-// @flow
+import test = require('tape')
 
-const test = require('tape')
-
-const {fileAnalysis} = require('../../lib/visitors/types')
-const getDependenciesErrors = require('../../lib/lint/dependencies')
+import {fileAnalysis} from '../../visitors/types'
+import getDependenciesErrors from '../../lint/dependencies'
 
 test('won\'t return errors if there are no requires', (t) => {
   t.deepEqual(getDependenciesErrors(fileAnalysis({}), [], {files: {}}, 'test', {}), [])

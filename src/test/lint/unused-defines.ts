@@ -1,9 +1,7 @@
-// @flow
+import test = require('tape')
 
-const test = require('tape')
-
-const {fileAnalysis} = require('../../lib/visitors/types')
-const getUnusedDefinesErrors = require('../../lib/lint/unused-defines')
+import {fileAnalysis} from '../../visitors/types'
+import getUnusedDefinesErrors from '../../lint/unused-defines'
 
 test('won\'t return errors if there are not defines', (t) => {
   t.deepEqual(getUnusedDefinesErrors(fileAnalysis({}), [], {files: {}}), [])

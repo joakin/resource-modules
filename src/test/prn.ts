@@ -1,8 +1,5 @@
-// @flow
-
-const test = require('tape')
-
-const prn = require('../lib/prn')
+import test = require('tape')
+import prn from '../prn'
 
 test('returns an nested colored string representation of an object by default', (t) => {
   t.equal(

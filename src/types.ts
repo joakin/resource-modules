@@ -1,9 +1,13 @@
+interface ResourceModuleTemplate {
+  [name: string]: string
+}
+
 export interface ResourceModule {
-  templates: string[],
-  messages: string[]|{[key: string]: string},
-  dependencies: string[]|string,
-  scripts: string[],
-  styles: string[]
+  templates?: ResourceModuleTemplate,
+  messages?: string[]|{[key: string]: string|any},
+  dependencies?: string[]|string,
+  scripts?: string[],
+  styles?: string[]
 }
 
 export interface ResourceModules {
