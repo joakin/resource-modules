@@ -7,10 +7,9 @@
     "resource-modules": "./dist/cli.js"
   },
   "scripts": {
-    "start": "npm run compile && node dist/cli.js",
-    "compile": "rm -rf dist/ && tsc",
-    "test": "npm run compile && cp -r src/test/fixtures dist/test/ && tape \"dist/test/**/*.js\" | tap-spec",
-    "dist": "npm run compile && chmod +x dist/cli.js && rm -rf dist/test"
+    "start": "tsc && node dist/cli.js",
+    "test": "tsc && cp -r src/test/fixtures dist/test/ && tape \"dist/test/**/*.js\" | tap-spec",
+    "dist": "rm -rf dist/ && tsc && chmod +x dist/cli.js && rm -rf dist/test"
   },
   "files": [
     "dist/",

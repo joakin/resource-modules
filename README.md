@@ -30,7 +30,8 @@ You can also set it up locally for your project:
 
 ## Development
 
-`resource-modules` requires node.js 6+ and is written in typed javascript using [flowtype][]
+`resource-modules` requires node.js 4+ and is written in typed javascript using
+[typescript][]
 
     npm install
     npm start /path/to/mediawiki/extension
@@ -44,4 +45,4 @@ If you want to run them in watch mode:
     npm install -g nodemon
     nodemon --exec "npm test"
 
-[flowtype]: https://flowtype.org/
+[typescript]: https://typescript.org/
