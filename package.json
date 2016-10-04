@@ -1,6 +1,6 @@
 {
   "name": "resource-modules",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "",
   "main": "dist/cli.js",
   "bin": {
