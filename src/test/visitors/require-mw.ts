@@ -7,6 +7,7 @@ import {fileAnalysis} from '../../visitors/types'
 const files = {
   'a': {
     source: `
+    mw.apple = 1
     var a = mw.banana + mw.phone.ring('ring')
     mw.yes.no(mw.config)
     `

@@ -10,9 +10,13 @@ const visitor: VisitorMap<State> = {
     if (
       node.type === 'MemberExpression' &&
       isObjectAccess('mw', null, node) &&
-      ( // Get only full member expressions and not the sub-children
+      ( // Ancestors include the current node!
         (ancestors && ancestors.length > 1 &&
-         ancestors[ancestors.length - 2].type !== 'MemberExpression') ||
+         // Get only full member expressions and not the sub-children
+         ancestors[ancestors.length - 2].type !== 'MemberExpression' &&
+         // Don't get assignments into the member expression
+         ancestors[ancestors.length - 2].type !== 'AssignmentExpression'
+        ) ||
         (ancestors.length === 0)
       )
     ) {
