@@ -120,7 +120,7 @@ export default function getGlobalDependenciesErrors (
           const anyAssignersInDeps: boolean = assigners
             .reduce((foundAssignerDep: boolean, definer: string) => {
               if (!foundAssignerDep) {
-                const tmpErrs = []
+                const tmpErrs : DependencyError[] = []
                 checkDefinerFile(tmpErrs, definer, inModules, globalId, resourceModules)
                 if (tmpErrs.length === 0) {
                   // File that assigns is in dep tree, works for us
