@@ -14,14 +14,16 @@ const globalIdBlacklist = [
   'mw.loader',
   // Properly defined in mediawiki.language/mediawiki.language.init.js but
   // extended in mediawiki.language.js with jquery
-  'mw.language'
+  'mw.language',
+  'mw.message'
 ]
 
 const defaultFiles = [
   'resources/src/mediawiki/mediawiki.js',
   'resources/src/mediawiki/mediawiki.util.js',
   'resources/src/startup.js',
-  'resources/src/mediawiki/mediawiki.template.js'
+  'resources/src/mediawiki/mediawiki.template.js',
+  'resources/src/mediawiki/mediawiki.requestIdleCallback.js'
 ]
 
 export default function getGlobalDependenciesErrors (
