@@ -47,26 +47,17 @@ export default function getGlobalDependenciesErrors (
         // Get name and analysis paired
         .map((fileName: string): FileAndAnalysis => [fileName, analysis.files[fileName]])
 
-      // Find out which file defines ns and the def (if any)
-      const whoDefinesNamespace: FileAndAnalysis[] = fileAndAnalysis
+      // Find out which file defines as ns
+      const whoDefinesAsNamespace: FileAndAnalysis[] = fileAndAnalysis
         .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
           fileAnalysis.mw_defines.some((definition) =>
             definition.type === 'namespace' &&
             // The namespace definition is there
-            definition.name === ns
+            definition.name === globalId
           ))
 
-      // Find out which file assigns ns (opaque ns if not defined)
-      const whoDefinesNamespaceAssigning: FileAndAnalysis[] = fileAndAnalysis
-        .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
-          fileAnalysis.mw_defines.some((definition) =>
-            definition.type === 'assignment' &&
-            // The namespace definition is there
-            definition.name === ns
-          ))
-
-      // Find out which file defines ns and the def (if any)
-      const whoDefinesAssigning: FileAndAnalysis[] = fileAndAnalysis
+      // Find out which file defines as assignment
+      const whoDefinesAsAssignment: FileAndAnalysis[] = fileAndAnalysis
         .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
           fileAnalysis.mw_defines.some((definition) =>
             // Or assigned to a variable beforehand without an explicit
@@ -75,67 +66,80 @@ export default function getGlobalDependenciesErrors (
             definition.name === globalId
           ))
 
-      if (whoDefinesNamespace.length > 1) {
-        errs.push({kind: 'multiple_defines', id: globalId, where: whoDefinesNamespace})
-      } else if (
-        // If there's 1 namespace definition but the variable is not defined
-        // there and it is not assigned anywhere else
-        whoDefinesNamespace.length === 1 &&
-        whoDefinesNamespace[0][1].mw_defines.some((definition) =>
-          definition.type === 'namespace' &&
-          // The namespace definition is there
-          definition.name === ns &&
-          definition.definitions.indexOf(def) === -1
-        ) &&
-        whoDefinesAssigning.length === 0
-      ) {
-        errs.push({kind: 'not_defined', id: globalId})
-      } else if (whoDefinesNamespace.length === 0) {
-        if (whoDefinesNamespaceAssigning.length === 0) {
-          // If the namespace is not defined anywhere and it is not assigned to
-          // anywhere complain about it not existing
-          errs.push({kind: 'not_defined', id: ns})
-        }
-      } else {
-        // There is 1 namespace definition
-        // And either that defines the var or it is on whoDefinesAssigning
-
-        // Namespace definer needs to be in the dependencies
-        const [definer, definerAna]: FileAndAnalysis = whoDefinesNamespace[0]
-        checkDefinerFile(errs, definer, inModules, globalId, resourceModules)
-
-        // If the namespace definer doesn't define the property, we check
-        // there's one of the assignments beforehand
-        if (
-          definerAna.mw_defines.some((definition: MWDefine) =>
+      // Find out which file defines ns
+      const whoDefinesNamespace: FileAndAnalysis[] = fileAndAnalysis
+        .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
+          fileAnalysis.mw_defines.some((definition) =>
             definition.type === 'namespace' &&
             // The namespace definition is there
-            definition.name === ns &&
-            definition.definitions.indexOf(def) === -1
-          )
-        ) {
-          // And then we give up
-          const assigners: string[] = whoDefinesAssigning.map(([fileName]: FileAndAnalysis) => fileName)
-          // Need to check that at least one is assigned before hand
-          const anyAssignersInDeps: boolean = assigners
-            .reduce((foundAssignerDep: boolean, definer: string) => {
-              if (!foundAssignerDep) {
-                const tmpErrs : DependencyError[] = []
-                checkDefinerFile(tmpErrs, definer, inModules, globalId, resourceModules)
-                if (tmpErrs.length === 0) {
-                  // File that assigns is in dep tree, works for us
-                  return true
-                } else {
-                  // File not found, keep looking
-                  return false
-                }
-              }
-              return foundAssignerDep
-            }, false)
+            definition.name === ns
+          ))
 
-          if (!anyAssignersInDeps) {
-            errs.push({kind: 'not_found', id: globalId, where: assigners.join(', ')})
-          }
+      const definitions = whoDefinesAsNamespace.length + whoDefinesAsAssignment.length
+
+      if (definitions > 1) {
+        errs.push({
+          kind: 'multiple_defines',
+          id: globalId,
+          where: whoDefinesAsNamespace.concat(whoDefinesAsAssignment)
+        })
+      } else if (definitions === 0) {
+        errs.push({kind: 'not_defined', id: globalId})
+      } else if (definitions === 1) {
+
+        const [user, userAna]: FileAndAnalysis =
+          whoDefinesAsAssignment.length === 1 ? whoDefinesAsAssignment[0] : whoDefinesAsNamespace[0]
+
+        checkDefinerFile(errs, user, inModules, globalId, resourceModules)
+
+        // Check the vars' namespace
+        if (whoDefinesNamespace.length > 1) {
+          errs.push({
+            kind: 'multiple_defines',
+            id: ns,
+            where: whoDefinesNamespace
+          })
+        } else if (whoDefinesNamespace.length === 0) {
+          errs.push({kind: 'not_defined', id: ns})
+        } else if (whoDefinesNamespace.length === 1) {
+
+          // Namespace definer needs to be in the dependencies
+          const [definer, definerAna]: FileAndAnalysis = whoDefinesNamespace[0]
+          checkDefinerFile(errs, definer, inModules, globalId, resourceModules)
+
+          // // If the namespace definer doesn't define the property, we check
+          // // there's one of the assignments beforehand
+          // if (
+          //   definerAna.mw_defines.some((definition: MWDefine) =>
+          //     definition.type === 'namespace' &&
+          //     // The namespace definition is there
+          //     definition.name === ns /*&&
+          //     definition.definitions.indexOf(def) === -1*/
+          //   )
+          // ) {
+          //   // And then we give up
+          //   const assigners: string[] = whoDefinesAsAssignment.map(([fileName]: FileAndAnalysis) => fileName)
+          //   // Need to check that at least one is assigned before hand
+          //   const anyAssignersInDeps: boolean = assigners
+          //     .reduce((foundAssignerDep: boolean, definer: string) => {
+          //       if (!foundAssignerDep) {
+          //         const tmpErrs : DependencyError[] = []
+          //         checkDefinerFile(tmpErrs, definer, inModules, globalId, resourceModules)
+          //         if (tmpErrs.length === 0) {
+          //           // File that assigns is in dep tree, works for us
+          //           return true
+          //         } else {
+          //           // File not found, keep looking
+          //           return false
+          //         }
+          //       }
+          //       return foundAssignerDep
+          //     }, false)
+
+          //   if (!anyAssignersInDeps) {
+          //     errs.push({kind: 'not_found', id: globalId, where: assigners.join(', ')})
+          //   }
+          // }
         }
       }
 
@@ -149,19 +153,54 @@ function checkDefinerFile (
   errs: DependencyError[], definer: string, inModules: Module[], globalId: string, resourceModules: ResourceModules
 ): void {
   // Traverse dependencies of the RLModules where source file is used
-  // and check file that defines is there somewhere, unless it is one of
-  // the included by default in mediawiki
-  if (!defaultFiles.some((exception: string) => definer.endsWith(exception))) {
+  // and check file that defines is there somewhere
+
+  // Only if it is NOT one of the included by default in mediawiki
+  if (!isDefaultMediawikiFile(definer)) {
     inModules.forEach(([name, module]: Module): void => {
       // Script defined before me, or check my dependencies for it
       const inDependencies: string[] = getDependenciesWithFile(definer, name, module, resourceModules)
         // Unique
         .filter((v, i, arr) => arr.indexOf(v) === i)
       if (inDependencies.length > 1) {
-        errs.push({kind: 'file_in_multiple_dependencies', id: globalId, where: [definer, inDependencies]})
+        pushUniq({
+          kind: 'file_in_multiple_dependencies',
+          id: globalId,
+          where: [definer, inDependencies]
+        }, errs)
       } else if (inDependencies.length === 0) {
-        errs.push({kind: 'not_found', id: globalId, where: definer})
+        pushUniq({
+          kind: 'not_found', id: globalId, where: definer
+        }, errs)
       }
     })
   }
+}
+
+function pushUniq (obj: Object, arr: Array<Object>): void {
+  if (!arr.find((o) => deepEqual(obj, o))) arr.push(obj)
+}
+
+function deepEqual (o1: any, o2: any): boolean {
+  if (typeof o1 !== typeof o2) return false
+  if (typeof o1 !== 'object' && typeof o2 !== 'object') {
+    return o1 === o2
+  } else {
+    if (Array.isArray(o1) !== Array.isArray(o2)) return false
+    else if (Array.isArray(o1) && Array.isArray(o2)) {
+      if (o1.length !== o2.length) return false
+      return o1.every((x, i) => deepEqual(x, o2[i]))
+    } else {
+      var o1Keys = Object.keys(o1)
+      var o2Keys = Object.keys(o2)
+      if (o1Keys.length !== o2Keys.length) return false
+      return o1Keys.every((k, i) => deepEqual(o1[k], o2[o2Keys[i]]))
+    }
+  }
+}
+
+function isDefaultMediawikiFile (file: string): boolean {
+  return defaultFiles.some(
+    (defaultFile: string) => file.endsWith(defaultFile)
+  )
 }

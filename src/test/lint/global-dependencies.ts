@@ -14,7 +14,9 @@ test('it should not complain if required dep in source is defined in same file i
   const f1 = fileAnalysis({
     mw_requires: ['mw.banana.phone'],
     mw_defines: [{
-      type: 'namespace', name: 'mw.banana', definitions: ['phone']
+      type: 'namespace', name: 'mw.banana'
+    }, {
+      type: 'assignment', name: 'mw.banana.phone'
     }]
   })
 
@@ -46,7 +48,9 @@ test('it should not complain if required dep in source is defined in a previous 
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -93,8 +97,8 @@ test('it should complain if required dep in source is not defined in a previous 
       m1
     }
   ), [
-    // Namespace mw.banana not defined
-    { id: 'mw.banana', kind: 'not_defined' }
+    // Namespace mw.banana.phone not defined
+    { id: 'mw.banana.phone', kind: 'not_defined' }
   ])
 
   t.end()
@@ -110,7 +114,9 @@ test('it should not complain if required dep in source is defined in a dependenc
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -143,7 +149,9 @@ test('it should not complain if required dep in source is defined in a nested de
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -176,7 +184,9 @@ test('it should complain if required dep in source is not defined in a nested de
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -212,7 +222,9 @@ test('it should complain if file that defines required dep in source is multiple
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -251,10 +263,14 @@ test('it should complain if a required dep in source is defined multiple times i
   }
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
   const f3 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -299,7 +315,7 @@ test('it should not complain if a required dep is assigned in a previous module 
     type: 'assignment', name: 'mw.banana.phone'
   }] })
   const f3 = fileAnalysis({ mw_defines: [{
-    type: 'namespace', name: 'mw.banana', definitions: []
+    type: 'namespace', name: 'mw.banana'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -368,8 +384,7 @@ test('it should complain if a required dep is not assigned in a previous module 
   const f2 = fileAnalysis({ mw_defines: [] })
   const f3 = fileAnalysis({ mw_defines: [{
     type: 'namespace',
-    name: 'mw.banana',
-    definitions: []
+    name: 'mw.banana'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -403,9 +418,9 @@ test('it should complain if a required dep definer file is not in resource loade
   const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
   const f2 = fileAnalysis({ mw_defines: [] })
   const f3 = fileAnalysis({ mw_defines: [{
-    type: 'namespace',
-    name: 'mw.banana',
-    definitions: ['phone']
+    type: 'namespace', name: 'mw.banana'
+  }, {
+    type: 'assignment', name: 'mw.banana.phone'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -431,7 +446,7 @@ test('it should complain if a required dep is not assigned anywhere in resource 
     scripts: ['f1']
   }
   const m2 = {
-    scripts: ['f2', 'f22']
+    scripts: ['f2']
   }
   const m3 = {
     scripts: ['f3']
@@ -440,51 +455,9 @@ test('it should complain if a required dep is not assigned anywhere in resource 
   const f2 = fileAnalysis({ mw_defines: [{
     type: 'assignment', name: 'mw.banana.phone'
   }] })
-  const f22 = fileAnalysis({ mw_defines: [{
-    type: 'assignment', name: 'mw.banana.phone'
-  }] })
   const f3 = fileAnalysis({ mw_defines: [{
     type: 'namespace',
-    name: 'mw.banana',
-    definitions: []
-  }] })
-
-  t.deepEqual(getGlobalDependenciesErrors(
-    f1,
-    [ // In modules
-      ['m1', m1]
-    ],
-    { // Analysis from source
-      files: { f1, f2, f22, f3 }
-    },
-    'f1',
-    { // resource modules
-      m1, m2, m3
-    }
-  ), [{ id: 'mw.banana.phone', kind: 'not_found', where: 'f2, f22' }])
-
-  t.end()
-})
-
-test('it should not complain about defined variables that are not namespaces', (t) => {
-  const m1 = {
-    dependencies: ['m3', 'm2'],
-    scripts: ['f1']
-  }
-  const m2 = {
-    scripts: ['f2']
-  }
-  const m3 = {
-    scripts: ['f3']
-  }
-  const f1 = fileAnalysis({ mw_requires: ['mw.util.bleh'] })
-  const f2 = fileAnalysis({ mw_defines: [{
-    type: 'assignment', name: 'mw.util'
-  }] })
-  const f3 = fileAnalysis({ mw_defines: [{
-    type: 'namespace',
-    name: 'mw',
-    definitions: []
+    name: 'mw.banana'
   }] })
 
   t.deepEqual(getGlobalDependenciesErrors(
@@ -499,7 +472,7 @@ test('it should not complain about defined variables that are not namespaces', (
     { // resource modules
       m1, m2, m3
     }
-  ), [])
+  ), [{ id: 'mw.banana.phone', kind: 'not_found', where: 'f2' }])
 
   t.end()
 })
