@@ -35,43 +35,25 @@ function addNamespace (name: string, defines: MWDefine[]): void {
   }
   defines.push({
     type: 'namespace',
-    name,
-    definitions: []
+    name
   })
 }
 
 function addProperties (name: string, defines: MWDefine[], props: (acorn$Property|string)[]): void {
-  const namespaceMatches = defines.filter((d) => d.type === 'namespace' && d.name === name)
-  if (namespaceMatches.length === 1) {
-    const ns = namespaceMatches[0]
-    if (ns.type === 'namespace') {
-      props.forEach((prop) => {
-        if (typeof prop === 'string') {
-          ns.definitions.push(prop)
-        } else if (
-          prop.key.type === 'Identifier' &&
-          !(prop.value.type === 'Literal' && prop.value.raw === 'null')
-        ) {
-          ns.definitions.push(prop.key.name)
-        }
+  props.forEach((prop) => {
+    if (typeof prop === 'string') {
+      defines.push({
+        type: 'assignment',
+        name: [name, prop].join('.')
+      })
+    } else if (
+      prop.key.type === 'Identifier' &&
+      !(prop.value.type === 'Literal' && prop.value.raw === 'null')
+    ) {
+      defines.push({
+        type: 'assignment',
+        name: [name, prop.key.name].join('.')
       })
     }
-  } else if (namespaceMatches.length === 0) {
-    props.forEach((prop) => {
-      if (typeof prop === 'string') {
-        defines.push({
-          type: 'assignment',
-          name: [name, prop].join('.')
-        })
-      } else if (
-        prop.key.type === 'Identifier' &&
-        !(prop.value.type === 'Literal' && prop.value.raw === 'null')
-      ) {
-        defines.push({
-          type: 'assignment',
-          name: [name, prop.key.name].join('.')
-        })
-      }
-    })
-  }
+  })
 }

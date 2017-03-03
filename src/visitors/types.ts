@@ -2,8 +2,7 @@ export type MWDefine = MWNamespace | MWAssignment
 
 interface MWNamespace {
   type: 'namespace',
-  name: string,
-  definitions: string[]
+  name: string
 }
 
 interface MWAssignment {

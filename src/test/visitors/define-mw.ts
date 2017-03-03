@@ -4,63 +4,20 @@ import {walk} from '../../analyze'
 import defineMw from '../../visitors/define-mw'
 import {fileAnalysis} from '../../visitors/types'
 
-const files = {
-  a: {
-    source: `
-    mw.banana = {}
-    `
-  },
-  b: {
-    source: `
-    mw.banana = {
-      phone: 1,
-      ring: function () {}
-    }
-    `
-  },
-  c: {
-    source: `
-    mw.banana = {}
-    mw.banana.phone = 1
-    mw.banana.ring = function () {}
-    `
-  },
-  d: {
-    source: `
-    mw.banana.phone = 1
-    mw.banana.ring = function () {}
-    `
-  },
-  e: {
-    source: `
-    this.banana = 1
-    a.b = 2
-    `
-  },
-  f: {
-    source: `
-    mw = {
-      a: 1
-    }
-    `
-  },
-  g: {
-    source: `
-    mw = {
-      a: null
-    }
-    `
-  }
-}
-
 test('tracks definition of mw.<...> namespaces', (t) => {
+  const files = {
+    a: {
+      source: `
+      mw.banana = {}
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.a.source, 'a'),
     fileAnalysis({
       mw_defines: [{
         type: 'namespace',
-        name: 'mw.banana',
-        definitions: []
+        name: 'mw.banana'
       }],
       source: files.a.source
     })
@@ -69,13 +26,28 @@ test('tracks definition of mw.<...> namespaces', (t) => {
 })
 
 test('tracks definitions in mw.<...> namespace object', (t) => {
+  const files = {
+    b: {
+      source: `
+      mw.banana = {
+        phone: 1,
+        ring: function () {}
+      }
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.b.source, 'b'),
     fileAnalysis({
       mw_defines: [{
         type: 'namespace',
-        name: 'mw.banana',
-        definitions: ['phone', 'ring']
+        name: 'mw.banana'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.phone'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.ring'
       }],
       source: files.b.source
     })
@@ -84,13 +56,27 @@ test('tracks definitions in mw.<...> namespace object', (t) => {
 })
 
 test('tracks standalone definitions mw.<...>.<...>', (t) => {
+  const files = {
+    c: {
+      source: `
+      mw.banana = {}
+      mw.banana.phone = 1
+      mw.banana.ring = function () {}
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.c.source, 'c'),
     fileAnalysis({
       mw_defines: [{
         type: 'namespace',
-        name: 'mw.banana',
-        definitions: ['phone', 'ring']
+        name: 'mw.banana'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.phone'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.ring'
       }],
       source: files.c.source
     })
@@ -99,6 +85,14 @@ test('tracks standalone definitions mw.<...>.<...>', (t) => {
 })
 
 test('tracks usage of mw.<...> as assignments if namespace not defined in file', (t) => {
+  const files = {
+    d: {
+      source: `
+      mw.banana.phone = 1
+      mw.banana.ring = function () {}
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.d.source, 'd'),
     fileAnalysis({
@@ -116,6 +110,14 @@ test('tracks usage of mw.<...> as assignments if namespace not defined in file',
 })
 
 test('doesn\'nt track definition of other variables', (t) => {
+  const files = {
+    e: {
+      source: `
+      this.banana = 1
+      a.b = 2
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.e.source, 'e'),
     fileAnalysis({
@@ -127,13 +129,24 @@ test('doesn\'nt track definition of other variables', (t) => {
 })
 
 test('tracks definition of mw namespace', (t) => {
+  const files = {
+    f: {
+      source: `
+      mw = {
+        a: 1
+      }
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.f.source, 'f'),
     fileAnalysis({
       mw_defines: [{
         type: 'namespace',
-        name: 'mw',
-        definitions: ['a']
+        name: 'mw'
+      }, {
+        type: 'assignment',
+        name: 'mw.a'
       }],
       source: files.f.source
     })
@@ -142,15 +155,52 @@ test('tracks definition of mw namespace', (t) => {
 })
 
 test('doesnt track definition of null properties', (t) => {
+  const files = {
+    g: {
+      source: `
+      mw = {
+        a: null
+      }
+      `
+    }
+  }
   t.deepEqual(
     walk(defineMw, files.g.source, 'g'),
     fileAnalysis({
       mw_defines: [{
         type: 'namespace',
-        name: 'mw',
-        definitions: []
+        name: 'mw'
       }],
       source: files.g.source
+    })
+  )
+  t.end()
+})
+
+test('tracks nested definitions mw.<...>.<...>', (t) => {
+  const files = {
+    h: {
+      source: `
+      mw.banana = {}
+      mw.banana.phone = {}
+      mw.banana.phone.ring = function () {}
+      `
+    }
+  }
+  t.deepEqual(
+    walk(defineMw, files.h.source, 'h'),
+    fileAnalysis({
+      mw_defines: [{
+        type: 'namespace',
+        name: 'mw.banana'
+      }, {
+        type: 'namespace',
+        name: 'mw.banana.phone'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.phone.ring'
+      }],
+      source: files.h.source
     })
   )
   t.end()
