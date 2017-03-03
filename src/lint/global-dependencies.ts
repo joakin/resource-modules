@@ -66,15 +66,6 @@ export default function getGlobalDependenciesErrors (
             definition.name === globalId
           ))
 
-      // Find out which file defines ns
-      const whoDefinesNamespace: FileAndAnalysis[] = fileAndAnalysis
-        .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
-          fileAnalysis.mw_defines.some((definition) =>
-            definition.type === 'namespace' &&
-            // The namespace definition is there
-            definition.name === ns
-          ))
-
       const definitions = whoDefinesAsNamespace.length + whoDefinesAsAssignment.length
 
       if (definitions > 1) {
@@ -84,63 +75,43 @@ export default function getGlobalDependenciesErrors (
           where: whoDefinesAsNamespace.concat(whoDefinesAsAssignment)
         })
       } else if (definitions === 0) {
-        errs.push({kind: 'not_defined', id: globalId})
+
+        // If the global definition is not found, check if there are any
+        // sub-namespaces that are an assignment, and ignore such usage. This
+        // gets rid of erros like mw.config.get is not defined, because
+        // mw.config is assigned somewhere to something.
+
+        const subNamespaces = ns.split('.').map((part, i, arr) =>
+          arr.slice(0, i).concat(part).join('.'))
+        let validError = true
+        subNamespaces.forEach(subns => {
+          if (!validError) return
+
+          const whoDefinesSubnamespace: FileAndAnalysis[] = fileAndAnalysis
+            .filter(([fileName, fileAnalysis]: FileAndAnalysis) =>
+              fileAnalysis.mw_defines.some((definition) =>
+                definition.type === 'assignment' &&
+                // The namespace definition is there
+                definition.name === subns
+              ))
+
+          // If a subnamespace is defined somewhere as an assignment, it is an
+          // opaque type, ignore the not_defined error
+          if (whoDefinesSubnamespace.length > 0) validError = false
+        })
+
+        if (validError) errs.push({kind: 'not_defined', id: globalId})
+
       } else if (definitions === 1) {
 
+        // If there is one definition, then find out if the definer file is in
+        // dependencies
+
         const [user, userAna]: FileAndAnalysis =
-          whoDefinesAsAssignment.length === 1 ? whoDefinesAsAssignment[0] : whoDefinesAsNamespace[0]
+          whoDefinesAsAssignment.length === 1
+            ? whoDefinesAsAssignment[0] : whoDefinesAsNamespace[0]
 
         checkDefinerFile(errs, user, inModules, globalId, resourceModules)
-
-        // Check the vars' namespace
-        if (whoDefinesNamespace.length > 1) {
-          errs.push({
-            kind: 'multiple_defines',
-            id: ns,
-            where: whoDefinesNamespace
-          })
-        } else if (whoDefinesNamespace.length === 0) {
-          errs.push({kind: 'not_defined', id: ns})
-        } else if (whoDefinesNamespace.length === 1) {
-
-          // Namespace definer needs to be in the dependencies
-          const [definer, definerAna]: FileAndAnalysis = whoDefinesNamespace[0]
-          checkDefinerFile(errs, definer, inModules, globalId, resourceModules)
-
-          // // If the namespace definer doesn't define the property, we check
-          // // there's one of the assignments beforehand
-          // if (
-          //   definerAna.mw_defines.some((definition: MWDefine) =>
-          //     definition.type === 'namespace' &&
-          //     // The namespace definition is there
-          //     definition.name === ns /*&&
-          //     definition.definitions.indexOf(def) === -1*/
-          //   )
-          // ) {
-          //   // And then we give up
-          //   const assigners: string[] = whoDefinesAsAssignment.map(([fileName]: FileAndAnalysis) => fileName)
-          //   // Need to check that at least one is assigned before hand
-          //   const anyAssignersInDeps: boolean = assigners
-          //     .reduce((foundAssignerDep: boolean, definer: string) => {
-          //       if (!foundAssignerDep) {
-          //         const tmpErrs : DependencyError[] = []
-          //         checkDefinerFile(tmpErrs, definer, inModules, globalId, resourceModules)
-          //         if (tmpErrs.length === 0) {
-          //           // File that assigns is in dep tree, works for us
-          //           return true
-          //         } else {
-          //           // File not found, keep looking
-          //           return false
-          //         }
-          //       }
-          //       return foundAssignerDep
-          //     }, false)
-
-          //   if (!anyAssignersInDeps) {
-          //     errs.push({kind: 'not_found', id: globalId, where: assigners.join(', ')})
-          //   }
-          // }
-        }
       }
 
       return errs

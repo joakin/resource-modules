@@ -335,40 +335,6 @@ test('it should not complain if a required dep is assigned in a previous module 
   t.end()
 })
 
-test('it should complain if a required dep is assigned in a previous module but not its namespace before that one', (t) => {
-  const m1 = {
-    dependencies: ['m3', 'm2'],
-    scripts: ['f1']
-  }
-  const m2 = {
-    scripts: ['f2']
-  }
-  const m3 = {
-    scripts: ['f3']
-  }
-  const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
-  const f2 = fileAnalysis({ mw_defines: [{
-    type: 'assignment', name: 'mw.banana.phone'
-  }] })
-  const f3 = fileAnalysis({ mw_defines: [] })
-
-  t.deepEqual(getGlobalDependenciesErrors(
-    f1,
-    [ // In modules
-      ['m1', m1]
-    ],
-    { // Analysis from source
-      files: { f1, f2, f3 }
-    },
-    'f1',
-    { // resource modules
-      m1, m2, m3
-    }
-  ), [{ id: 'mw.banana', kind: 'not_defined' }])
-
-  t.end()
-})
-
 test('it should complain if a required dep is not assigned in a previous module and not defined in its namespace', (t) => {
   const m1 = {
     dependencies: ['m3', 'm2'],
@@ -473,6 +439,36 @@ test('it should complain if a required dep is not assigned anywhere in resource 
       m1, m2, m3
     }
   ), [{ id: 'mw.banana.phone', kind: 'not_found', where: 'f2' }])
+
+  t.end()
+})
+
+test('it should not complain if a required dep is not anywhere in resource loader definitions but a sub namespace is assigned somewhere in the dependencies', (t) => {
+  const m1 = {
+    dependencies: ['m2'],
+    scripts: ['f1']
+  }
+  const m2 = {
+    scripts: ['f2']
+  }
+  const f1 = fileAnalysis({ mw_requires: ['mw.banana.phone'] })
+  const f2 = fileAnalysis({ mw_defines: [{
+    type: 'assignment', name: 'mw.banana'
+  }] })
+
+  t.deepEqual(getGlobalDependenciesErrors(
+    f1,
+    [ // In modules
+      ['m1', m1]
+    ],
+    { // Analysis from source
+      files: { f1, f2 }
+    },
+    'f1',
+    { // resource modules
+      m1, m2
+    }
+  ), [])
 
   t.end()
 })
