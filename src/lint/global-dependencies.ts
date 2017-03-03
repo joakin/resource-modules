@@ -5,25 +5,16 @@ import {ResourceModules} from '../types'
 
 import {getDependenciesWithFile} from './helpers'
 
-const globalIdBlacklist = [
-  // Weird definition in core
-  'mw.log',
-  // Properly defined in mediawiki.js but extended weirdly in mediawiki.user.js
-  'mw.user',
-  // Defined in a iife of 1700 lines long. Not worth it
-  'mw.loader',
-  // Properly defined in mediawiki.language/mediawiki.language.init.js but
-  // extended in mediawiki.language.js with jquery
-  'mw.language',
-  'mw.message'
-]
+const globalIdBlacklist: string[] = []
 
 const defaultFiles = [
   'resources/src/mediawiki/mediawiki.js',
   'resources/src/mediawiki/mediawiki.util.js',
+  'resources/src/mediawiki/mediawiki.log.js',
   'resources/src/startup.js',
   'resources/src/mediawiki/mediawiki.template.js',
-  'resources/src/mediawiki/mediawiki.requestIdleCallback.js'
+  'resources/src/mediawiki/mediawiki.requestIdleCallback.js',
+  'resources/src/mediawiki.language/mediawiki.language.init.js'
 ]
 
 export default function getGlobalDependenciesErrors (
