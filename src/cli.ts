@@ -8,6 +8,7 @@ import {getJSFiles, getJSON} from './fs'
 import {Analysis, analyzeFiles} from './analyze'
 import lint from './lint'
 import logErrors from './errors'
+import {getPhpConfig} from './php'
 
 import {ResourceModules, ExtensionJson} from './types'
 
@@ -61,14 +62,4 @@ function analyzeJSFiles (
     // Analyze the JS files
     .then((jsFiles: string[]): Promise<Analysis> =>
       analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
-}
-
-function getPhpConfig (dir: string, file: string): Promise<ResourceModules> {
-  return new Promise((resolve, reject) => {
-    exec(`php ${path.join(__dirname, '..', 'src/php/resources.php')} ${dir} ${file}`, (error, stdout, stderr) => {
-      if (error) return reject(error)
-      console.error(stderr)
-      resolve(stdout)
-    })
-  }).then((t) => (<ResourceModules>JSON.parse(t.toString())))
 }
