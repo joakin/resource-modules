@@ -3,14 +3,14 @@ import * as path from 'path'
 import {getFiles, getSources, getSource, getJSON} from '../fs'
 
 const testFile = {
-  path: path.join('fixtures', 'test.json'),
+  path: path.join('fixtures', 'TestGetFiles', 'test.json'),
   source: '{\n  "a": 1\n}\n',
   json: { a: 1 }
 }
 
 test('getFiles should return the files in a folder', (t) => {
   t.plan(1)
-  getFiles(path.join(__dirname, 'fixtures'))
+  getFiles(path.join(__dirname, 'fixtures', 'TestGetFiles'))
     .then((fs) => t.deepEqual(fs, [path.join(__dirname, testFile.path)]))
     .catch(t.fail)
 })
