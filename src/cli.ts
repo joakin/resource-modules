@@ -4,7 +4,7 @@ import * as path from 'path'
 import {exec} from 'child_process'
 
 import visitors from './visitors'
-import {getFiles, getJSON} from './fs'
+import {getJSFiles, getJSON} from './fs'
 import {Analysis, analyzeFiles} from './analyze'
 import lint from './lint'
 import logErrors from './errors'
@@ -57,29 +57,10 @@ function main (coreDir: string, dir: string): void {
 function analyzeJSFiles (
   dir: string, resources: string, printAnalysisErrors: boolean
 ): Promise<Analysis> {
-  return getFiles(path.join(dir, resources))
-    // Remove folder prefix and filter only JS files
-    .then((files: string[]): string[] =>
-      files.map(replace(dir + path.sep, '')).filter(isValidJSFile))
+  return getJSFiles(dir, resources)
     // Analyze the JS files
     .then((jsFiles: string[]): Promise<Analysis> =>
       analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
-}
-
-const ignoreFiles = [
-  /qunit/
-]
-
-function isValidJSFile (name: string) {
-  return (
-    name.slice(name.length - 3) === '.js' &&
-    name.indexOf('-skip.js') === -1 &&
-    !ignoreFiles.some((r) => r.test(name))
-  )
-}
-
-function replace (rpl: string, s: string) {
-  return (str: string): string => str.replace(rpl, s)
 }
 
 function getPhpConfig (dir: string, file: string): Promise<ResourceModules> {
