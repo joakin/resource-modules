@@ -25,9 +25,41 @@ const visitor: VisitorMap<State> = {
         }
       }
     }
+  },
+
+  CallExpression (node: Node, {data}: State/* , ancestors */): void {
+    // Check for $.extend( mw.namespace, {...} )
+    let defined = null
+    if (
+      node.type === 'CallExpression' &&
+      is$extend(node.callee) &&
+      node.arguments.length === 2
+    ) {
+      const defined: string = prn(node.arguments[0], true)
+      const extender: Node = node.arguments[1]
+      if (
+        defined.startsWith('mw') &&
+        extender.type === 'ObjectExpression'
+      ) {
+        data.mw_defines = data.mw_defines || []
+        addProperties(defined, data.mw_defines, extender.properties)
+      }
+    }
   }
 }
 export default visitor
+
+function is$extend (node: Node): boolean {
+  return (
+    node.type === 'MemberExpression' &&
+
+    node.object.type === 'Identifier' &&
+    node.object.name === '$' &&
+
+    node.property.type === 'Identifier' &&
+    node.property.name === 'extend'
+  )
+}
 
 function addNamespace (name: string, defines: MWDefine[]): void {
   if (defines.filter((d) => d.name === name).length) {

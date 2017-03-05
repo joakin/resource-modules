@@ -205,3 +205,30 @@ test('tracks nested definitions mw.<...>.<...>', (t) => {
   )
   t.end()
 })
+
+test('tracks assignments using $.extend expressions', (t) => {
+  const files = {
+    g: {
+      source: `
+      $.extend( mw.banana, {
+        phone: '',
+        apple: ''
+      } );
+      `
+    }
+  }
+  t.deepEqual(
+    walk(defineMw, files.g.source, 'g'),
+    fileAnalysis({
+      mw_defines: [{
+        type: 'assignment',
+        name: 'mw.banana.phone'
+      }, {
+        type: 'assignment',
+        name: 'mw.banana.apple'
+      }],
+      source: files.g.source
+    })
+  )
+  t.end()
+})
