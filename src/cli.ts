@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import * as path from 'path'
-import {exec} from 'child_process'
 
 import visitors from './visitors'
 import {getJSFiles, getJSON} from './fs'
