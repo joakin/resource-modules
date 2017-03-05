@@ -13,7 +13,7 @@
   },
   "files": [
     "dist/",
-    "resources.php"
+    "src/php/resources.php"
   ],
   "author": "Joaquin Oltra <joaquin@chimeces.com> (http://chimeces.com)",
   "license": "ISC",

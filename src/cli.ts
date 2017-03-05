@@ -84,7 +84,7 @@ function replace (rpl: string, s: string) {
 
 function getPhpConfig (dir: string, file: string): Promise<ResourceModules> {
   return new Promise((resolve, reject) => {
-    exec(`php ${path.join(__dirname, '..', 'resources.php')} ${dir} ${file}`, (error, stdout, stderr) => {
+    exec(`php ${path.join(__dirname, '..', 'src/php/resources.php')} ${dir} ${file}`, (error, stdout, stderr) => {
       if (error) return reject(error)
       console.error(stderr)
       resolve(stdout)
