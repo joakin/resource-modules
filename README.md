@@ -52,9 +52,8 @@ You can also set it up locally for your project:
   * Checks that `M.require`d modules are `M.define`d in some dependency script
     (in same ResourceModule or a dependency)
 * Global `mw` namespaces/usages
-  * Tracks definitions of `mw.X = { ... }` and `mw.X.Y = ...` global
-    definitions to a good degree, from the extension and core. (There are
-    patterns in mediawiki core that are too dynamic to be tracked).
+  * Tracks global definitions of `mw.X = { ... }`, `mw.X.Y = ...` and
+    `$.extend( mw.X, { Y: ... } )`, from the extension and core.
   * Tracks usages of `mw.X` in sources
   * Complains when used `mw.X` globals are not in previously defined scripts in
     ResourceModules
@@ -72,7 +71,7 @@ You can also set it up locally for your project:
 
 ## Development
 
-`resource-modules` requires node.js 4+ and is written in typed javascript using
+`resource-modules` requires node.js 6+ and is written in typed javascript using
 [typescript][]
 
     npm install
