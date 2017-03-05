@@ -145,10 +145,15 @@ function analyzeJSFiles (
       analyzeFiles(dir, jsFiles, visitors, printAnalysisErrors))
 }
 
+const ignoreFiles = [
+  /qunit/
+]
+
 function isValidJSFile (name: string) {
   return (
     name.slice(name.length - 3) === '.js' &&
-    name.indexOf('-skip.js') === -1
+    name.indexOf('-skip.js') === -1 &&
+    !ignoreFiles.some((r) => r.test(name))
   )
 }
 
