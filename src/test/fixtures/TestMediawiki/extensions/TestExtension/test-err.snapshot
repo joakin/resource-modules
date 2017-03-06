@@ -43,3 +43,4 @@ Error: Dependency problems in file: resources/test.js:
     resources/module2.js
     resources/module3.js
   Required mf-define-nowhere not defined in any source files
+  Required mw.defineNotInDependencies defined in file resources/module3.js not found in any dependencies

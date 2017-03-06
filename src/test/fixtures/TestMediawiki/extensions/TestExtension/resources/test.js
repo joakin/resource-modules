@@ -26,3 +26,4 @@ mw.mobileFrontend.define('mf-define-unused', 1)
 
 test( mw.defineInModulePreviousScript )
 test( mw.define.InDependencyModule )
+test( mw.defineNotInDependencies )
