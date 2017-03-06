@@ -12,3 +12,5 @@ mw.msg( 'message0' )
 mw.msg( someRandomVariable )
 // Message not declared on ResourceModules
 mw.msg( 'message1' )
+
+mw.mobileFrontend.require('mf-define-in-module-previous-script')

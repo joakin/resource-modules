@@ -8,6 +8,7 @@
         "message0"
       ],
       "scripts": [
+        "resources/pre-test.js",
         "resources/test.js"
       ]
     }
