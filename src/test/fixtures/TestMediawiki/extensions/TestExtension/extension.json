@@ -10,6 +10,14 @@
       "scripts": [
         "resources/pre-test.js",
         "resources/test.js"
+      ],
+      "dependencies": [
+        "module2"
+      ]
+    },
+    "module2": {
+      "scripts": [
+        "resources/module2.js"
       ]
     }
   }

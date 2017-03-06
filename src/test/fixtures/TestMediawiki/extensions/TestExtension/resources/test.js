@@ -14,3 +14,4 @@ mw.msg( someRandomVariable )
 mw.msg( 'message1' )
 
 mw.mobileFrontend.require('mf-define-in-module-previous-script')
+mw.mobileFrontend.require('mf-define-in-dependency-module')
