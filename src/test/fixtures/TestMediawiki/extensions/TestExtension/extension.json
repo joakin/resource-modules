@@ -1,3 +1,9 @@
 {
-  "ResourceModules": 1
+  "ResourceModules": {
+    "module1": {
+      "scripts": [
+        "resources/test.js"
+      ]
+    }
+  }
 }

@@ -1,3 +1,5 @@
+mw.template = { get: function () {} }
+mw.msg = function () {}
 
 // Template usage with non-string literals
 mw.template.get( someRandomVariable )

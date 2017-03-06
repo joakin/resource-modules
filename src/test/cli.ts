@@ -15,7 +15,6 @@ test('@integration runs cli on test extension without problems', (t) => {
   const snapshotStderr = fs.readFileSync(path.join(testExtension, 'test-err.snapshot')).toString()
 
   exec(`node ${cliFile} ${testExtension}`, (error, stdout, stderr) => {
-    if (error) return t.fail(error, 'Error running exec')
     if (stderr) t.equal(stderr, snapshotStderr, 'Expected standard error out')
     t.equal(stdout, snapshotStdout, 'Expected standard out')
     t.end()
