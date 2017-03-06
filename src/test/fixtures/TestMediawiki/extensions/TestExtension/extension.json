@@ -1,6 +1,9 @@
 {
   "ResourceModules": {
     "module1": {
+      "messages": [
+        "message0"
+      ],
       "scripts": [
         "resources/test.js"
       ]
