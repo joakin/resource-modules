@@ -1,6 +1,9 @@
 {
   "ResourceModules": {
     "module1": {
+      "templates": {
+        "template": "template.template"
+      },
       "messages": [
         "message0"
       ],

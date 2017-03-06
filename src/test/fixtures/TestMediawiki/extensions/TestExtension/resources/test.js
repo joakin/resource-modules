@@ -1,12 +1,14 @@
 mw.template = { get: function () {} }
 mw.msg = function () {}
 
+// Template with a string literal
+mw.template.get( 'module1', 'template' )
 // Template usage with non-string literals
-mw.template.get( someRandomVariable )
+mw.template.get( someRandomVariable, anotherRandomVariable )
 
+// Message properly declared
+mw.msg( 'message0' )
 // mw.msg usage with non-string literals
 mw.msg( someRandomVariable )
-
-mw.msg( 'message0' )
 // Message not declared on ResourceModules
 mw.msg( 'message1' )

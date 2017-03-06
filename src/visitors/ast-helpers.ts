@@ -5,7 +5,8 @@ import {Node} from 'acorn'
 export function isI18n (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
-    isObjectAccess('mw', 'msg', node.callee)
+    isObjectAccess('mw', 'msg', node.callee) &&
+    node.arguments.length === 1
   ) {
     if (node.arguments[0].type !== 'Literal') {
       throw new Error(
@@ -20,9 +21,13 @@ export function isI18n (node: Node): boolean {
 export function isTemplate (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
-    isObjectAccess('mw.template', 'get', node.callee)
+    isObjectAccess('mw.template', 'get', node.callee) &&
+    node.arguments.length === 2
   ) {
-    if (node.arguments[0].type !== 'Literal' || node.arguments[1].type !== 'Literal') {
+    if (
+      node.arguments[0].type !== 'Literal' ||
+      node.arguments[1].type !== 'Literal'
+    ){
       throw new Error(
         `mw.template.get must be used with string literals for consistency\n${prn(node)}`)
     }
@@ -36,7 +41,8 @@ export function isMFDefine (node: Node): boolean {
   if (
     node.type === 'CallExpression' && (
       isObjectAccess('M', 'define', node.callee) ||
-      isObjectAccess('mw.mobileFrontend', 'define', node.callee)
+      isObjectAccess('mw.mobileFrontend', 'define', node.callee) &&
+      node.arguments.length === 2
     )
   ) {
     if (node.arguments[0].type !== 'Literal') {
@@ -52,7 +58,8 @@ export function isMFDefine (node: Node): boolean {
 export function isRequire (node: Node): boolean {
   if (
     node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' && named('require', node.callee)
+    node.callee.type === 'Identifier' && named('require', node.callee) &&
+    node.arguments.length === 2
   ) {
     if (node.arguments[0].type !== 'Literal') {
       throw new Error(
@@ -69,7 +76,8 @@ export function isMFRequire (node: Node): boolean {
     node.type === 'CallExpression' && (
       isObjectAccess('M', 'require', node.callee) ||
       isObjectAccess('mw.mobileFrontend', 'require', node.callee)
-    )
+    ) &&
+    node.arguments.length === 1
   ) {
     if (node.arguments[0].type !== 'Literal') {
       throw new Error(

@@ -1,14 +1,14 @@
 
 On file: resources/test.js
 mw.template.get must be used with string literals for consistency
-Line 5 Column 0
+Line 7 Column 0
 
-mw.template.get(someRandomVariable)
+mw.template.get(someRandomVariable, anotherRandomVariable)
 
 
 On file: resources/test.js
 mw.msg must be used with string literals for consistency
-Line 8 Column 0
+Line 12 Column 0
 
 mw.msg(someRandomVariable)
 
