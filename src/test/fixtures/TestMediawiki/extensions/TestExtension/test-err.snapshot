@@ -25,3 +25,4 @@ Error: Dependency problems in file: resources/test.js:
   Required mf-define-in-multiple-dependencies defined in multiple files:
     resources/module2.js
     resources/module3.js
+  Required mf-define-nowhere not defined in any source files
