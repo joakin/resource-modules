@@ -6,3 +6,6 @@ mw.template.get( someRandomVariable )
 
 // mw.msg usage with non-string literals
 mw.msg( someRandomVariable )
+
+// Message not declared on ResourceModules
+mw.msg( 'message1' )

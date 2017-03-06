@@ -15,3 +15,7 @@ mw.msg(someRandomVariable)
 
 Warning: Not in extension.json (couldn't verify):
   resources/not-in-resource-modules.js
+
+Error: Missing messages used directly in file: resources/test.js:
+  In module module1, missing:
+    message1
