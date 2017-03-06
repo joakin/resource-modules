@@ -43,6 +43,12 @@ function main (coreDir: string, dir: string): void {
   ] as [Promise<Analysis>, Promise<Analysis>, Promise<ResourceModules>])
     .then(([ana, coreAna, resourceModules]: [Analysis, Analysis, ResourceModules]) => {
 
+      // console.log(JSON.stringify({
+      //   ana,
+      //   coreAna,
+      //   resourceModules
+      // }, null, 2))
+
       const errors = lint(ana, coreAna, resourceModules)
       const exit = logErrors(errors)
       process.exit(exit)
