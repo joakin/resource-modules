@@ -18,3 +18,5 @@ mw.mobileFrontend.require('mf-define-in-dependency-module')
 mw.mobileFrontend.require('mf-define-not-in-dependencies')
 mw.mobileFrontend.require('mf-define-in-multiple-dependencies')
 mw.mobileFrontend.require('mf-define-nowhere')
+
+mw.mobileFrontend.define('mf-define-unused', 1)

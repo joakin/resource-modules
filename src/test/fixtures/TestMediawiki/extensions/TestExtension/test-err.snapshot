@@ -20,6 +20,9 @@ Error: Missing messages used directly in file: resources/test.js:
   In module module1, missing:
     message1
 
+Error: Unused defines from file: resources/test.js:
+  mf-define-unused
+
 Error: Dependency problems in file: resources/test.js:
   Required mf-define-not-in-dependencies defined in file resources/module3.js not found in any dependencies
   Required mf-define-in-multiple-dependencies defined in multiple files:
