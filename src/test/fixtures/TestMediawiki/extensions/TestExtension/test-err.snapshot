@@ -19,3 +19,6 @@ Warning: Not in extension.json (couldn't verify):
 Error: Missing messages used directly in file: resources/test.js:
   In module module1, missing:
     message1
+
+Error: Dependency problems in file: resources/test.js:
+  Required mf-define-not-in-dependencies defined in file resources/module3.js not found in any dependencies

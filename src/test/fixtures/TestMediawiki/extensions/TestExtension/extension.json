@@ -19,6 +19,11 @@
       "scripts": [
         "resources/module2.js"
       ]
+    },
+    "module3": {
+      "scripts": [
+        "resources/module3.js"
+      ]
     }
   }
 }

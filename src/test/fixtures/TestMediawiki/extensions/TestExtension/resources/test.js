@@ -15,3 +15,4 @@ mw.msg( 'message1' )
 
 mw.mobileFrontend.require('mf-define-in-module-previous-script')
 mw.mobileFrontend.require('mf-define-in-dependency-module')
+mw.mobileFrontend.require('mf-define-not-in-dependencies')

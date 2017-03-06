@@ -109,7 +109,7 @@ function logDependencyErrors (file: string, fileErrors: FileErrors) {
           console.error(error.where[1].map((m) => `    ${m}`).join('\n'))
           break
         case 'not_found':
-          console.error(`  Required ${error.id} defined in file ${error.where} not found in any ResourceModules`)
+          console.error(`  Required ${error.id} defined in file ${error.where} not found in any dependencies`)
           break
       }
     })
