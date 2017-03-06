@@ -13,6 +13,20 @@ Line 12 Column 0
 mw.msg(someRandomVariable)
 
 
+On file: resources/test.js
+M.require must be used with string literals for consistency
+Line 16 Column 0
+
+mw.mobileFrontend.require(ohSoDynamicRequire)
+
+
+On file: resources/test.js
+Define must be used with string literals for consistency
+Line 23 Column 0
+
+mw.mobileFrontend.define(ohSoDynamicRequire, 1)
+
+
 Warning: Not in extension.json (couldn't verify):
   resources/not-in-resource-modules.js
 
