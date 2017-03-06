@@ -1,3 +1,11 @@
 
+On file: resources/test.js
+mw.template.get must be used with string literals for consistency
+Line 3 Column 0
+
+mw.template.get(someRandomVariable)
+
+
 Warning: Not in extension.json (couldn't verify):
+  resources/not-in-resource-modules.js
   resources/test.js
