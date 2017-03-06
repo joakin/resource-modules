@@ -1,5 +1,10 @@
 language: node_js
 node_js:
   - "6"
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq php
+install:
+  - npm install
 script:
   - npm test
