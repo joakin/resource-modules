@@ -6,6 +6,13 @@ Line 3 Column 0
 mw.template.get(someRandomVariable)
 
 
+On file: resources/test.js
+mw.msg must be used with string literals for consistency
+Line 6 Column 0
+
+mw.msg(someRandomVariable)
+
+
 Warning: Not in extension.json (couldn't verify):
   resources/not-in-resource-modules.js
   resources/test.js
