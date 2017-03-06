@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "tsc && node dist/cli.js",
-    "test": "tsc && cp -r src/test/fixtures dist/test/ && tape \"dist/test/**/*.js\" | tap-spec",
+    "test": "tsc && cp -r src/test/fixtures dist/test/ && tape \"dist/test/{./,!(fixtures)}/*.js\" | tap-spec",
     "dist": "rm -rf dist/ && tsc && chmod +x dist/cli.js && rm -rf dist/test"
   },
   "files": [
