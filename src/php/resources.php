@@ -10,4 +10,4 @@ if ( is_readable( "$IP/vendor/autoload.php" ) ) {
 	require_once("$IP/vendor/autoload.php");
 }
 
-echo(json_encode(include("$IP$FILE"), JSON_PRETTY_PRINT));
+echo(json_encode(include("$IP$FILE")));
