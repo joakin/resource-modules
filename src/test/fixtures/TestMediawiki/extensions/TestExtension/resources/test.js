@@ -22,3 +22,6 @@ mw.mobileFrontend.require('mf-define-nowhere')
 
 mw.mobileFrontend.define(ohSoDynamicRequire, 1)
 mw.mobileFrontend.define('mf-define-unused', 1)
+
+
+test( mw.defineInModulePreviousScript )
