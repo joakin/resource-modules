@@ -28,3 +28,12 @@ test( mw.defineInModulePreviousScript )
 test( mw.define.InDependencyModule )
 test( mw.defineNotInDependencies )
 test( mw.defineNowhere )
+
+// Test for nested opaque objects that shouldn't generate a warning when used
+// if a parent namespace is assigned before hand
+mw.namespace = {
+  opaqueObject: new Object()
+}
+mw.namespace.opaqueObject2 = new Object()
+test( mw.namespace.opaqueObject.get() )
+test( mw.namespace.opaqueObject2.get() )
