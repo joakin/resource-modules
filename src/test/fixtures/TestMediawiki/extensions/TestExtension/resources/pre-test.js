@@ -1,5 +1,5 @@
-mw.mobileFrontend = MODULES
+mw.mobileFrontend = MODULES;
 
-mw.mobileFrontend.define('mf-define-in-module-previous-script', banana)
+mw.mobileFrontend.define('mf-define-in-module-previous-script', banana);
 
-mw.defineInModulePreviousScript = 1
+mw.defineInModulePreviousScript = 1;
