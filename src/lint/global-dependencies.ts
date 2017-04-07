@@ -64,6 +64,7 @@ export default function getGlobalDependenciesErrors (
           kind: 'multiple_defines',
           id: globalId,
           where: whoDefinesAsNamespace.concat(whoDefinesAsAssignment)
+            .sort(([f1, _], [f2, __]) => f1 > f2 ? 1 : -1)
         })
       } else if (definitions === 0) {
 
@@ -128,7 +129,7 @@ function checkDefinerFile (
         pushUniq({
           kind: 'file_in_multiple_dependencies',
           id: globalId,
-          where: [definer, inDependencies]
+          where: [definer, inDependencies.sort()]
         }, errs)
       } else if (inDependencies.length === 0) {
         pushUniq({

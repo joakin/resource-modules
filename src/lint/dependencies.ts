@@ -25,7 +25,10 @@ export default function getDependenciesErrors (
           fa.defines.indexOf(mfId) > -1)
 
       if (whoDefines.length > 1) {
-        errs.push({kind: 'multiple_defines', id: mfId, where: whoDefines})
+        errs.push({
+          kind: 'multiple_defines',
+          id: mfId, where: whoDefines.sort(([f1, _], [f2, __]) => f1 > f2 ? 1 : -1)
+        })
       } else if (whoDefines.length === 0) {
         errs.push({kind: 'not_defined', id: mfId})
       } else {
@@ -37,6 +40,7 @@ export default function getDependenciesErrors (
           // Script defined before me, or check my dependencies for it
           const inDependencies: string[] = getDependenciesWithFile(definer, name, module, resourceModules)
             .filter((v, i, arr) => arr.indexOf(v) === i)
+            .sort()
           if (inDependencies.length > 1) {
             errs.push({kind: 'file_in_multiple_dependencies', id: mfId, where: [definer, inDependencies]})
           } else if (inDependencies.length === 0) {
