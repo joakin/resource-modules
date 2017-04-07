@@ -1,8 +1,8 @@
 import {Node} from 'acorn'
 import * as acorn from 'acorn'
 import * as acornWalk from 'acorn/dist/walk'
-import {VisitorMap} from 'acorn/dist/walk'
-import {fileAnalysis, FileAnalysis, State} from './visitors/types'
+import {Visitor, VisitorMap} from 'acorn/dist/walk'
+import {fileAnalysis, FileAnalysis, DisabledLines, State} from './visitors/types'
 
 import {getSources, Sources} from './fs'
 
@@ -35,11 +35,13 @@ export function walk (
   try {
     const parsedData = parse(source)
     const state: State = {
+      disabledLines: parsedData.disabled,
       file,
       data: fileAnalysis({source}),
       analysisErrors: []
     }
-    acornWalk.ancestor(parsedData.ast, visitors, null, state)
+    const disableableVisitors = mapVisitors(makeVisitorDisableable, visitors)
+    acornWalk.ancestor(parsedData.ast, disableableVisitors, null, state)
     if (noisy) {
       state.analysisErrors.forEach((e) => console.error(e))
     }
@@ -49,12 +51,30 @@ export function walk (
   }
 }
 
-interface DisabledLines { [start: number]: number }
-
 function getDisabledLines (comments: acorn$Comment[]): DisabledLines {
   return comments.reduce((lines: DisabledLines, comment: acorn$Comment) => {
     if (comment.value.trim() === 'resource-modules-disable-line' && comment.loc)
-      lines[comment.loc.start.line] = comment.loc.end.line
+      lines.push({start: comment.loc.start.line, end: comment.loc.end.line})
     return lines
+  }, [])
+}
+
+function mapVisitors(fn: (v: Visitor<State>) => Visitor<State>, visitors: VisitorMap<State>): VisitorMap<State> {
+  return Object.keys(visitors).reduce((vs: VisitorMap<State>, key: string) => {
+    const visitor = visitors[key]
+    vs[key] = fn(visitor)
+    return vs
   }, {})
+}
+
+function makeVisitorDisableable (visitor: Visitor<State>): Visitor<State> {
+  return (node: Node, state: State, ancestors: Node[]): void => {
+    if (isNodeInDisabledLine(node.loc, state.disabledLines)) return
+    visitor(node, state, ancestors)
+  }
+}
+
+function isNodeInDisabledLine (loc: acorn$Location, disabledLines: DisabledLines) {
+  const line = loc.start.line
+  return disabledLines.some(({start, end}) => line === start)
 }

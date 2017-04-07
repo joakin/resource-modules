@@ -39,7 +39,10 @@ export function fileAnalysis (extra: Object): FileAnalysis {
   }, extra)
 }
 
+export type DisabledLines = { start: number, end: number }[]
+
 export interface State {
+  disabledLines: DisabledLines,
   data: FileAnalysis,
   file: string,
   analysisErrors: string[]

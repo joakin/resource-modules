@@ -37,3 +37,6 @@ mw.namespace = {
 mw.namespace.opaqueObject2 = new Object()
 test( mw.namespace.opaqueObject.get() )
 test( mw.namespace.opaqueObject2.get() )
+
+// Test disabled line doesn't get parsed
+mw.message('non-existing-message-i-want-to-ignore'); // resource-modules-disable-line
