@@ -44,9 +44,25 @@ declare interface acorn$Property {
   loc: acorn$Location, type: 'Property', key: acorn$Node, value: acorn$Node
 }
 
+declare interface acorn$Comment {
+  type: "Line" | "Block",
+  value: string,
+  start: number,
+  end: number,
+  loc?: {
+    start: {line: number, column: number}
+    end: {line: number, column: number}
+  },
+  range?: [number, number]
+}
+
 declare module "acorn" {
+  interface ParseOptions {
+    locations?: boolean,
+    onComment?: acorn$Comment[]
+  }
   export type Node = acorn$Node
-  export function parse (source: string, options: {[key: string]: boolean}): Node
+  export function parse (source: string, options: ParseOptions): Node
 }
 
 declare module "acorn/dist/walk" {
