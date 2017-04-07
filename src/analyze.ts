@@ -23,21 +23,23 @@ export function analyzeFiles (
     })
 }
 
-export function parse (source: string): Node {
-  return acorn.parse(source, {locations: true})
+export function parse (source: string): { ast: Node, disabled: DisabledLines } {
+  const comments: acorn$Comment[] = []
+  const ast = acorn.parse(source, {locations: true, onComment: comments})
+  return { ast, disabled: getDisabledLines(comments) }
 }
 
 export function walk (
   visitors: VisitorMap<State>, source: string, file: string, noisy: boolean = false
 ): FileAnalysis {
   try {
-    const ast = parse(source)
+    const parsedData = parse(source)
     const state: State = {
       file,
       data: fileAnalysis({source}),
       analysisErrors: []
     }
-    acornWalk.ancestor(ast, visitors, null, state)
+    acornWalk.ancestor(parsedData.ast, visitors, null, state)
     if (noisy) {
       state.analysisErrors.forEach((e) => console.error(e))
     }
@@ -45,4 +47,14 @@ export function walk (
   } catch (e) {
     throw new Error(`Failed to walk ${file}\n${e.message}`)
   }
+}
+
+interface DisabledLines { [start: number]: number }
+
+function getDisabledLines (comments: acorn$Comment[]): DisabledLines {
+  return comments.reduce((lines: DisabledLines, comment: acorn$Comment) => {
+    if (comment.value.trim() === 'resource-modules-disable-line' && comment.loc)
+      lines[comment.loc.start.line] = comment.loc.end.line
+    return lines
+  }, {})
 }
