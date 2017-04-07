@@ -10,9 +10,13 @@ test('returns an nested colored string representation of an object by default', 
 })
 
 test('returns nothing when passed out=true', (t) => {
+  // Mock console.dir to not output extraneous text in test runs
+  const dir = global.console.dir
+  global.console.dir = () => {}
   t.equal(
     prn({a: 1, b: 2, c: {a: 1, b: {c: 3}}}, true),
     void 0
   )
+  global.console.dir = dir
   t.end()
 })
