@@ -58,6 +58,28 @@ You can also set it up locally for your project:
   * Complains when used `mw.X` globals are not in previously defined scripts in
     ResourceModules
 
+### Disabling linting
+
+Sometimes there are highly dynamic interactions on the code that can't be
+linted, for example, MobileFrontend using messages defined on VisualEditor, so
+they aren't in MobileFrontend's extension.json.
+
+In those cases, use `// resource-modules-disable-line` in the line that is
+giving you the lint error to avoid parsing of that line and thus the error.
+Example:
+
+```js
+  // ...
+  switchToolbar.setup( [
+    {
+      type: 'list',
+      icon: 'edit',
+      title: mw.msg( 'visualeditor-mweditmode-tooltip' ), //resource-modules-disable-line
+      include: [ 'editModeVisual', 'editModeSource' ]
+    }
+  ] );
+```
+
 ### Possible future improvements
 
 * Track and lint the broken version of `require/module.exports` that
