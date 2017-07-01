@@ -21,7 +21,7 @@
     "@types/node": "^6.0.41",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0",
-    "typescript": "^2.0.3"
+    "typescript": "^2.4.1"
   },
   "dependencies": {
     "acorn": "^5",
