@@ -9,11 +9,9 @@
       "./src/type-defs/",
       "./node_modules/@types/"
     ],
+    "strict": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "./src/**/*"
