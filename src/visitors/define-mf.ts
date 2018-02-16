@@ -1,29 +1,29 @@
-import {Node} from 'acorn'
-import {VisitorMap} from 'acorn/dist/walk'
-import {State} from './types'
+import { Node } from "acorn";
+import { VisitorMap } from "acorn/dist/walk";
+import { State } from "./types";
 
-import {isMFDefine} from './ast-helpers'
-import prn from '../prn-ast'
+import { isMFDefine } from "./ast-helpers";
+import prn from "../prn-ast";
 
 const visitor: VisitorMap<State> = {
-  CallExpression (node: Node, {data}: State, ancestors: Node[]) {
-    if (
-      node.type === 'CallExpression' &&
-      isMFDefine(node)
-    ) {
-      const firstArg = node.arguments[0]
-      const defined = firstArg.type === 'Literal' ? firstArg.value : ''
+  CallExpression(node: Node, { data }: State, ancestors: Node[]) {
+    if (node.type === "CallExpression" && isMFDefine(node)) {
+      const firstArg = node.arguments[0];
+      const defined = firstArg.type === "Literal" ? firstArg.value : "";
 
-      if (defined === '') throw new Error(`Invalid argument in define:\n${prn(node)}`)
+      if (defined === "")
+        throw new Error(`Invalid argument in define:\n${prn(node)}`);
 
-      data.defines = data.defines || []
+      data.defines = data.defines || [];
 
       if (data.defines.indexOf(defined) !== -1) {
-        throw new Error(`Module ${defined} already defined previously\n${prn(node)}`)
+        throw new Error(
+          `Module ${defined} already defined previously\n${prn(node)}`
+        );
       } else {
-        data.defines.push(defined)
+        data.defines.push(defined);
       }
     }
   }
-}
-export default visitor
+};
+export default visitor;

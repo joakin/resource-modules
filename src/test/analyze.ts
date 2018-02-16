@@ -1,5 +1,5 @@
-import test = require('tape')
-import {analyzeFiles, parse} from '../analyze'
+import test = require("tape");
+import { analyzeFiles, parse } from "../analyze";
 
 // test.skip('TBD', (t) => {
 //   console.log(analyzeFiles, parse)

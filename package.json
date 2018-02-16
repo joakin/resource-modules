@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "tsc && node dist/cli.js",
+    "format": "prettier --write 'src/**/*.ts'",
     "test": "tsc && cp -r src/test/fixtures dist/test/ && tape \"dist/test/{./,!(fixtures)}/*.js\" | tap-spec",
     "dist": "rm -rf dist/ && tsc && chmod +x dist/cli.js && rm -rf dist/test"
   },
@@ -19,6 +20,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^8.9.4",
+    "prettier": "^1.10.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.8.0",
     "typescript": "^2.7.2"
