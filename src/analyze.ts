@@ -24,7 +24,11 @@ export function analyzeFiles(
   return getSources(dir, jsFiles).then((files: Sources) => {
     let analysis: Analysis = { files: {} };
     Object.keys(files).forEach(f => {
-      analysis.files[f] = walk(visitors, files[f].source, f, noisy);
+      try {
+        analysis.files[f] = walk(visitors, files[f].source, f, noisy);
+      } catch (e) {
+        if (noisy) console.error(e);
+      }
     });
     return analysis;
   });
@@ -57,7 +61,7 @@ export function walk(
     }
     return state.data;
   } catch (e) {
-    throw new Error(`Failed to walk ${file}\n${e.message}`);
+    throw new Error(`Failed to walk ${file}\n${e.message}\n${e.stack}`);
   }
 }
 
