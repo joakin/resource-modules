@@ -9,6 +9,7 @@ const globalIdBlacklist: string[] = [];
 
 const defaultFiles = [
   "resources/src/mediawiki/mediawiki.js",
+  "resources/src/mediawiki/mediawiki.base.js",
   "resources/src/mediawiki.util.js",
   "resources/src/mediawiki/mediawiki.log.js",
   "resources/src/startup.js",
