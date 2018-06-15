@@ -41,13 +41,13 @@ You can also set it up locally for your project:
   * Warns about files not defined in any ResourceModules
     * Only warning because there may be files loaded on hooks depending on
       runtime checks
-* MobileFrontend modules (`mw.mobileFrontend.define`
-  & `mw.mobileFrontend.require`)
+* MobileFrontend modules (`mw.mobileFrontend.define` &
+  `mw.mobileFrontend.require`)
   * Complains about unused `M.define`s
   * Checks that `M.require`d modules are `M.define`d in some dependency script
     (in same ResourceModule or a dependency)
-* MobileFrontend modules (`mw.mobileFrontend.define`
-  & `mw.mobileFrontend.require`)
+* MobileFrontend modules (`mw.mobileFrontend.define` &
+  `mw.mobileFrontend.require`)
   * Complains about unused `M.define`s
   * Checks that `M.require`d modules are `M.define`d in some dependency script
     (in same ResourceModule or a dependency)
@@ -69,24 +69,24 @@ giving you the lint error to avoid parsing of that line and thus the error.
 Example:
 
 ```js
-  // ...
-  switchToolbar.setup( [
-    {
-      type: 'list',
-      icon: 'edit',
-      title: mw.msg( 'visualeditor-mweditmode-tooltip' ), //resource-modules-disable-line
-      include: [ 'editModeVisual', 'editModeSource' ]
-    }
-  ] );
+// ...
+switchToolbar.setup([
+  {
+    type: "list",
+    icon: "edit",
+    title: mw.msg("visualeditor-mweditmode-tooltip"), //resource-modules-disable-line
+    include: ["editModeVisual", "editModeSource"]
+  }
+]);
 ```
 
 ### Possible future improvements
 
 * Track and lint the broken version of `require/module.exports` that
-  ResourceLoader exposes (ResourceModule based scope instead of file based
-  scope like in common.js modules)
-* Lint for messages defined in resource modules not used in sources or
-  dependent sources
+  ResourceLoader exposes (ResourceModule based scope instead of file based scope
+  like in common.js modules)
+* Lint for messages defined in resource modules not used in sources or dependent
+  sources
 * Lint async requires to be correct too
 * Automatic restructuring/collapsing of ResourceModules configuration
 * Validate template files actually exist
@@ -107,5 +107,12 @@ If you want to run them in watch mode:
 
     npm install -g nodemon
     nodemon -e "ts" -w src/ --exec "npm test"
+
+To **release**, first build the artifacts and then publish:
+
+    npm run dist
+    npm version <major|minor|patch>
+    git push --tags && git push
+    npm publish
 
 [typescript]: https://typescript.org/
