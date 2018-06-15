@@ -353,7 +353,7 @@ test("it should complain if file that defines required dep in source is multiple
   t.end();
 });
 
-test("it should complain if a required dep in source is defined multiple times in one or more files", t => {
+test("it should not complain if a required dep in source is defined multiple times in one or more files and at least one is in the dependency tree", t => {
   const m1 = {
     dependencies: ["m2", "m3"],
     scripts: ["f1"]
@@ -410,12 +410,73 @@ test("it should complain if a required dep in source is defined multiple times i
       }
     ),
     [
-      // Required module, defined in files f2 and f3
+      // No errors given that some of the files defining the required thing are
+      // in the dependencies
+    ]
+  );
+
+  t.end();
+});
+
+test("it should complain if a required dep in source is defined multiple times in one or more files and none are in the dependency tree", t => {
+  const m1 = {
+    dependencies: [],
+    scripts: ["f1"]
+  };
+  const m2 = {
+    scripts: ["f2"]
+  };
+  const m3 = {
+    scripts: ["f3"]
+  };
+  const f1 = fileAnalysis({ mw_requires: ["mw.banana.phone"] });
+  const f2 = fileAnalysis({
+    mw_defines: [
       {
-        id: "mw.banana.phone",
-        kind: "multiple_defines",
-        where: [["f2", f2], ["f3", f3]]
+        type: "namespace",
+        name: "mw.banana"
+      },
+      {
+        type: "assignment",
+        name: "mw.banana.phone"
       }
+    ]
+  });
+  const f3 = fileAnalysis({
+    mw_defines: [
+      {
+        type: "namespace",
+        name: "mw.banana"
+      },
+      {
+        type: "assignment",
+        name: "mw.banana.phone"
+      }
+    ]
+  });
+
+  t.deepEqual(
+    getGlobalDependenciesErrors(
+      f1,
+      [
+        // In modules
+        ["m1", m1]
+      ],
+      {
+        // Analysis from source
+        files: { f1, f2, f3 }
+      },
+      "f1",
+      {
+        // resource modules
+        m1,
+        m2,
+        m3
+      }
+    ),
+    [
+      { kind: "not_found", id: "mw.banana.phone", where: "f2" },
+      { kind: "not_found", id: "mw.banana.phone", where: "f3" }
     ]
   );
 

@@ -113,11 +113,11 @@ export function isMwLoader(node: Node): boolean {
         isObjectAccess("mw.loader", "using", node.callee)))
   ) {
     const firstArgument = // mw.loader.using( ... ).done( ... )
-    // loader.loadModule( ... ).done( ... )
-    ((node.callee.object.type === "CallExpression" &&
-      node.callee.object.arguments) ||
-      // mw.loader.using( ..., ..., ... )
-      node.arguments)[0];
+      // loader.loadModule( ... ).done( ... )
+      ((node.callee.object.type === "CallExpression" &&
+        node.callee.object.arguments) ||
+        // mw.loader.using( ..., ..., ... )
+        node.arguments)[0];
     if (
       !(
         firstArgument.type === "Literal" ||

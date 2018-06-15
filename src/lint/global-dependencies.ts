@@ -77,15 +77,7 @@ export default function getGlobalDependenciesErrors(
             const definitions =
               whoDefinesAsNamespace.length + whoDefinesAsAssignment.length;
 
-            if (definitions > 1) {
-              errs.push({
-                kind: "multiple_defines",
-                id: globalId,
-                where: whoDefinesAsNamespace
-                  .concat(whoDefinesAsAssignment)
-                  .sort(([f1, _], [f2, __]) => (f1 > f2 ? 1 : -1))
-              });
-            } else if (definitions === 0) {
+            if (definitions === 0) {
               // If the global definition is not found, check if there are any
               // sub-namespaces that are an assignment, and ignore such usage. This
               // gets rid of erros like mw.config.get is not defined, because
@@ -133,6 +125,40 @@ export default function getGlobalDependenciesErrors(
                 globalId,
                 resourceModules
               );
+            } else if (definitions > 1) {
+              // If there is more than one definition, then find out if the
+              // at least one of the definer files passes the checks without
+              // errors
+              const allDefinitions = whoDefinesAsNamespace.concat(
+                whoDefinesAsAssignment
+              );
+
+              const errorsByDefinition: DependencyError[][] = allDefinitions.map(
+                ([user, userAna]: FileAndAnalysis) => {
+                  const errors: DependencyError[] = [];
+                  checkDefinerFile(
+                    errors,
+                    user,
+                    inModules,
+                    globalId,
+                    resourceModules
+                  );
+                  return errors;
+                }
+              );
+
+              // If all of the files passed with errors, then add the errors
+              if (errorsByDefinition.every(errors => errors.length > 0)) {
+                errs = errs.concat(
+                  errorsByDefinition.reduce(
+                    (allErrors, errors) => allErrors.concat(errors),
+                    []
+                  )
+                );
+              } else {
+                // Some definer file passed without errors, so ignore the errors
+                // in the other files
+              }
             }
 
             return errs;
