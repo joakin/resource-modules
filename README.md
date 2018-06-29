@@ -2,6 +2,8 @@
 
 [![](https://travis-ci.org/joakin/resource-modules.svg)](https://travis-ci.org/joakin/resource-modules)
 
+## Repository moved to https://github.com/wikimedia/resource-modules
+
 CLI tool that lints frontend resources in mediawiki extensions. Analyzes the
 sources and builds a dependency tree from source, and then lints that
 information with the extension.json ResourceModules declarations.
